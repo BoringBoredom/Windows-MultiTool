@@ -1,0 +1,120 @@
+import { AppShell, Button, Center, NavLink } from "@mantine/core";
+import { useEffect, useState } from "react";
+import packageJson from "../package.json";
+import DISPLAY_INFO, { type DisplayInfo } from "./DISPLAY_INFO";
+import IFEO, { type IfeoData } from "./IFEO";
+import PCI_IRQs, { type SystemInfo } from "./PCI_IRQs";
+import SCHEDULING, { type SchedulingInfo } from "./SCHEDULING";
+
+declare global {
+  interface Window {
+    pywebview: {
+      api: {
+        openURL: (url: string) => Promise<void>;
+        getSystemInfo: () => Promise<SystemInfo>;
+        getDisplayInfo: () => Promise<DisplayInfo>;
+        getIfeoData: () => Promise<IfeoData>;
+        getSchedulingInfo: () => Promise<SchedulingInfo>;
+        writeRegistryValue: (
+          path: string,
+          name: string,
+          type: number,
+          value: number | string
+        ) => Promise<void>;
+        deleteRegistryValue: (path: string, value: string) => Promise<void>;
+        deleteRegistryKey: (path: string, key: string) => Promise<void>;
+        createRegistryKey: (path: string) => Promise<void>;
+      };
+    };
+  }
+}
+
+const navItems = [
+  { name: "PCI IRQs", component: <PCI_IRQs /> },
+  { name: "Display Info", component: <DISPLAY_INFO /> },
+  { name: "IFEO", component: <IFEO /> },
+  { name: "Scheduling", component: <SCHEDULING /> },
+] as const;
+
+export default function App() {
+  const [apiReady, setApiReady] = useState(false);
+  const [active, setActive] = useState<
+    (typeof navItems)[number]["name"] | undefined
+  >();
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener("pywebviewready", () => {
+      setApiReady(true);
+    });
+
+    fetch(`https://api.github.com/repos/${packageJson.repo}/releases/latest`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
+
+        return response.json();
+      })
+      .then((data: { tag_name: string }) => {
+        if (data.tag_name !== packageJson.version) {
+          setUpdateAvailable(true);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+      });
+  }, []);
+
+  if (!apiReady) {
+    return;
+  }
+
+  return (
+    <>
+      <AppShell.Navbar>
+        {navItems.map((item) => {
+          const { name } = item;
+
+          return (
+            <NavLink
+              key={name}
+              label={name}
+              active={active === name}
+              onClick={() => {
+                setActive(name);
+              }}
+            />
+          );
+        })}
+      </AppShell.Navbar>
+
+      <AppShell.Main>
+        {active
+          ? navItems.find((item) => item.name === active)?.component
+          : updateAvailable && (
+              <Center h="100vh">
+                <Button
+                  variant="filled"
+                  color="green"
+                  size="xl"
+                  onClick={() => {
+                    window.pywebview.api
+                      .openURL(
+                        "https://github.com/" +
+                          packageJson.repo +
+                          "/releases/latest"
+                      )
+                      .catch((error: unknown) => {
+                        alert(error);
+                      });
+                  }}
+                >
+                  Update available
+                </Button>
+              </Center>
+            )}
+      </AppShell.Main>
+    </>
+  );
+}

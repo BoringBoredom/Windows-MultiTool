@@ -1,0 +1,41 @@
+{
+  "name": "windows-multitool",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "repo": "BoringBoredom/Windows-MultiTool",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "init": "npm ci && uv sync",
+    "clean": "(if exist dist rmdir /S /Q dist) && (if exist build rmdir /S /Q build) && (if exist gui rmdir /S /Q gui) && (if exist \"WindowsMultiTool.spec\" del /q \"WindowsMultiTool.spec\")",
+    "pyinstaller": "uv run pyinstaller main.pyw --name \"WindowsMultiTool\" --add-data=\"gui:gui\" --onefile --noconsole --icon=\"assets\\icon.ico\" --uac-admin",
+    "build-binary": "npm run clean && npm run build && npm run pyinstaller"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.17.3",
+    "@mantine/hooks": "^7.17.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-dom": "^1.40.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-react-x": "^1.40.0",
+    "globals": "^16",
+    "postcss": "^8.5.3",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0"
+  }
+}
