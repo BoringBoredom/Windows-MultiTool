@@ -1,5 +1,5 @@
-import ctypes
 from ctypes import (
+    FormatError,
     Structure,
     Union,
     byref,
@@ -9,6 +9,7 @@ from ctypes import (
     c_uint32,
     c_uint64,
     sizeof,
+    windll,
     wintypes,
 )
 from typing import Final, List, TypedDict
@@ -421,17 +422,17 @@ def get_display_info():
     modes = (DISPLAYCONFIG_MODE_INFO * mode_count.value)()
 
     while result == ERROR_INSUFFICIENT_BUFFER:
-        result = ctypes.windll.user32.GetDisplayConfigBufferSizes(
+        result = windll.user32.GetDisplayConfigBufferSizes(
             QDC_ONLY_ACTIVE_PATHS, byref(path_count), byref(mode_count)
         )
 
         if result != ERROR_SUCCESS:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
         paths = (DISPLAYCONFIG_PATH_INFO * path_count.value)()
         modes = (DISPLAYCONFIG_MODE_INFO * mode_count.value)()
 
-        result = ctypes.windll.user32.QueryDisplayConfig(
+        result = windll.user32.QueryDisplayConfig(
             QDC_ONLY_ACTIVE_PATHS,
             byref(path_count),
             paths,
@@ -441,7 +442,7 @@ def get_display_info():
         )
 
     if result != ERROR_SUCCESS:
-        return {"error_code": ctypes.FormatError(result)}
+        return {"error_code": FormatError(result)}
 
     displays: List[Display] = []
 
@@ -479,11 +480,9 @@ def get_display_info():
             DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME
         )
         target_name.header.size = sizeof(target_name)
-        result = ctypes.windll.user32.DisplayConfigGetDeviceInfo(
-            byref(target_name.header)
-        )
+        result = windll.user32.DisplayConfigGetDeviceInfo(byref(target_name.header))
         if result != ERROR_SUCCESS:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
         adapter_name = DISPLAYCONFIG_ADAPTER_NAME()
         adapter_name.header.adapterId = path.targetInfo.adapterId
@@ -491,11 +490,9 @@ def get_display_info():
             DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_ADAPTER_NAME
         )
         adapter_name.header.size = sizeof(adapter_name)
-        result = ctypes.windll.user32.DisplayConfigGetDeviceInfo(
-            byref(adapter_name.header)
-        )
+        result = windll.user32.DisplayConfigGetDeviceInfo(byref(adapter_name.header))
         if result != ERROR_SUCCESS:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
         source_name = DISPLAYCONFIG_SOURCE_DEVICE_NAME()
         source_name.header.adapterId = path.sourceInfo.adapterId
@@ -504,24 +501,22 @@ def get_display_info():
             DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME
         )
         source_name.header.size = sizeof(source_name)
-        result = ctypes.windll.user32.DisplayConfigGetDeviceInfo(
-            byref(source_name.header)
-        )
+        result = windll.user32.DisplayConfigGetDeviceInfo(byref(source_name.header))
         if result != ERROR_SUCCESS:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
         open_adapter = D3DKMT_OPENADAPTERFROMLUID()
         open_adapter.AdapterLuid = adapter_name.header.adapterId
-        result = ctypes.windll.gdi32.D3DKMTOpenAdapterFromLuid(byref(open_adapter))
+        result = windll.gdi32.D3DKMTOpenAdapterFromLuid(byref(open_adapter))
         if result != 0:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
         caps = D3DKMT_GET_MULTIPLANE_OVERLAY_CAPS()
         caps.hAdapter = open_adapter.hAdapter
         caps.VidPnSourceId = path.sourceInfo.id
-        result = ctypes.windll.gdi32.D3DKMTGetMultiPlaneOverlayCaps(byref(caps))
+        result = windll.gdi32.D3DKMTGetMultiPlaneOverlayCaps(byref(caps))
         if result != 0:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
         displays.append(
             {
@@ -563,8 +558,8 @@ def get_display_info():
 
         close_adapter = D3DKMT_CLOSEADAPTER()
         close_adapter.hAdapter = open_adapter.hAdapter
-        result = ctypes.windll.gdi32.D3DKMTCloseAdapter(byref(close_adapter))
+        result = windll.gdi32.D3DKMTCloseAdapter(byref(close_adapter))
         if result != 0:
-            return {"error_code": ctypes.FormatError(result)}
+            return {"error_code": FormatError(result)}
 
     return {"displays": displays}

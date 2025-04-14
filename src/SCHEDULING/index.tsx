@@ -17,8 +17,8 @@ export default function SCHEDULING() {
   useEffect(() => {
     window.pywebview.api
       .getSchedulingInfo()
-      .then((schedulingInfo) => {
-        setSchedulingInfo(schedulingInfo);
+      .then((data) => {
+        setSchedulingInfo(data);
       })
       .catch((error: unknown) => {
         alert(error);

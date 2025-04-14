@@ -96,8 +96,8 @@ export default function DISPLAY_INFO() {
   useEffect(() => {
     window.pywebview.api
       .getDisplayInfo()
-      .then((displayInfo) => {
-        setDisplayInfo(displayInfo);
+      .then((data) => {
+        setDisplayInfo(data);
       })
       .catch((error: unknown) => {
         alert(error);

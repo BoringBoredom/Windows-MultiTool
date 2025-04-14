@@ -27,8 +27,8 @@ export default function PCI_IRQs() {
   useEffect(() => {
     window.pywebview.api
       .getSystemInfo()
-      .then((systemInfo) => {
-        setSystemInfo(systemInfo);
+      .then((data) => {
+        setSystemInfo(data);
       })
       .catch((error: unknown) => {
         alert(error);
