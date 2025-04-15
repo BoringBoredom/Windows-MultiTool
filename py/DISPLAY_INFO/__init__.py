@@ -10,13 +10,13 @@ from ctypes import (
     c_uint64,
     sizeof,
     windll,
-    wintypes,
 )
+from ctypes.wintypes import BOOL, LONG, POINTL, RECTL, ULONG, WCHAR
 from typing import Final, List, TypedDict
 
 
 class LUID(Structure):
-    _fields_ = [("LowPart", wintypes.ULONG), ("HighPart", wintypes.LONG)]
+    _fields_ = [("LowPart", ULONG), ("HighPart", LONG)]
 
 
 class DUMMYSTRUCTNAME_PATH_SOURCE_INFO(Structure):
@@ -121,7 +121,7 @@ class DISPLAYCONFIG_PATH_TARGET_INFO(Structure):
         ("scaling", DISPLAYCONFIG_SCALING),
         ("refreshRate", DISPLAYCONFIG_RATIONAL),
         ("scanLineOrdering", DISPLAYCONFIG_SCANLINE_ORDERING),
-        ("targetAvailable", wintypes.BOOL),
+        ("targetAvailable", BOOL),
         ("statusFlags", c_uint32),
     ]
 
@@ -139,19 +139,6 @@ class DISPLAYCONFIG_MODE_INFO_TYPE(c_uint32):
     DISPLAYCONFIG_MODE_INFO_TYPE_TARGET = 2
     DISPLAYCONFIG_MODE_INFO_TYPE_DESKTOP_IMAGE = 3
     DISPLAYCONFIG_MODE_INFO_TYPE_FORCE_UINT32 = 0xFFFFFFFF
-
-
-class POINTL(Structure):
-    _fields_ = [("x", wintypes.LONG), ("y", wintypes.LONG)]
-
-
-class RECTL(Structure):
-    _fields_ = [
-        ("left", wintypes.LONG),
-        ("top", wintypes.LONG),
-        ("right", wintypes.LONG),
-        ("bottom", wintypes.LONG),
-    ]
 
 
 class DISPLAYCONFIG_DESKTOP_IMAGE_INFO(Structure):
@@ -290,22 +277,22 @@ class DISPLAYCONFIG_TARGET_DEVICE_NAME(Structure):
         ("edidManufactureId", c_uint16),
         ("edidProductCodeId", c_uint16),
         ("connectorInstance", c_uint32),
-        ("monitorFriendlyDeviceName", wintypes.WCHAR * 64),
-        ("monitorDevicePath", wintypes.WCHAR * 128),
+        ("monitorFriendlyDeviceName", WCHAR * 64),
+        ("monitorDevicePath", WCHAR * 128),
     ]
 
 
 class DISPLAYCONFIG_ADAPTER_NAME(Structure):
     _fields_ = [
         ("header", DISPLAYCONFIG_DEVICE_INFO_HEADER),
-        ("adapterDevicePath", wintypes.WCHAR * 128),
+        ("adapterDevicePath", WCHAR * 128),
     ]
 
 
 class DISPLAYCONFIG_SOURCE_DEVICE_NAME(Structure):
     _fields_ = [
         ("header", DISPLAYCONFIG_DEVICE_INFO_HEADER),
-        ("viewGdiDeviceName", wintypes.WCHAR * 32),
+        ("viewGdiDeviceName", WCHAR * 32),
     ]
 
 
@@ -412,34 +399,47 @@ ERROR_INSUFFICIENT_BUFFER: Final = 0x7A
 
 def get_display_info():
     user32 = windll.user32
+
+    GetDisplayConfigBufferSizes = user32.GetDisplayConfigBufferSizes
+    QueryDisplayConfig = user32.QueryDisplayConfig
+    DisplayConfigGetDeviceInfo = user32.DisplayConfigGetDeviceInfo
+
     gdi32 = windll.gdi32
+
+    D3DKMTOpenAdapterFromLuid = gdi32.D3DKMTOpenAdapterFromLuid
+    D3DKMTGetMultiPlaneOverlayCaps = gdi32.D3DKMTGetMultiPlaneOverlayCaps
+    D3DKMTCloseAdapter = gdi32.D3DKMTCloseAdapter
 
     result = ERROR_INSUFFICIENT_BUFFER
 
-    path_count = c_uint32()
-    mode_count = c_uint32()
+    num_path_array_elements = c_uint32()
+    num_mode_info_array_elements = c_uint32()
 
     # shut the linter up
-    paths = (DISPLAYCONFIG_PATH_INFO * path_count.value)()
-    modes = (DISPLAYCONFIG_MODE_INFO * mode_count.value)()
+    path_array = (DISPLAYCONFIG_PATH_INFO * num_path_array_elements.value)()
+    mode_info_array = (DISPLAYCONFIG_MODE_INFO * num_mode_info_array_elements.value)()
 
     while result == ERROR_INSUFFICIENT_BUFFER:
-        result = user32.GetDisplayConfigBufferSizes(
-            QDC_ONLY_ACTIVE_PATHS, byref(path_count), byref(mode_count)
+        result = GetDisplayConfigBufferSizes(
+            QDC_ONLY_ACTIVE_PATHS,
+            byref(num_path_array_elements),
+            byref(num_mode_info_array_elements),
         )
 
         if result != 0:
             raise WinError(result)
 
-        paths = (DISPLAYCONFIG_PATH_INFO * path_count.value)()
-        modes = (DISPLAYCONFIG_MODE_INFO * mode_count.value)()
+        path_array = (DISPLAYCONFIG_PATH_INFO * num_path_array_elements.value)()
+        mode_info_array = (
+            DISPLAYCONFIG_MODE_INFO * num_mode_info_array_elements.value
+        )()
 
-        result = user32.QueryDisplayConfig(
+        result = QueryDisplayConfig(
             QDC_ONLY_ACTIVE_PATHS,
-            byref(path_count),
-            paths,
-            byref(mode_count),
-            modes,
+            byref(num_path_array_elements),
+            path_array,
+            byref(num_mode_info_array_elements),
+            mode_info_array,
             None,
         )
 
@@ -448,17 +448,17 @@ def get_display_info():
 
     displays: List[Display] = []
 
-    pixelFormats = {}
-    horizontalFrequencies = {}
-    pixelRates = {}
+    pixel_formats = {}
+    horizontal_frequencies = {}
+    pixel_rates = {}
     resolutions = {}
 
-    for mode in modes:
+    for mode in mode_info_array:
         if (
             mode.infoType.value
             == DISPLAYCONFIG_MODE_INFO_TYPE.DISPLAYCONFIG_MODE_INFO_TYPE_SOURCE
         ):
-            pixelFormats[mode.id] = mode.DUMMYUNIONNAME.sourceMode.pixelFormat.value
+            pixel_formats[mode.id] = mode.DUMMYUNIONNAME.sourceMode.pixelFormat.value
             resolutions[mode.id] = (
                 f"{mode.DUMMYUNIONNAME.sourceMode.width} x {mode.DUMMYUNIONNAME.sourceMode.height}"
             )
@@ -466,15 +466,15 @@ def get_display_info():
             mode.infoType.value
             == DISPLAYCONFIG_MODE_INFO_TYPE.DISPLAYCONFIG_MODE_INFO_TYPE_TARGET
         ):
-            horizontalFrequencies[mode.id] = (
+            horizontal_frequencies[mode.id] = (
                 mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.hSyncFreq.Numerator
                 / mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.hSyncFreq.Denominator
             )
-            pixelRates[mode.id] = (
+            pixel_rates[mode.id] = (
                 mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.pixelRate
             )
 
-    for path in paths:
+    for path in path_array:
         target_name = DISPLAYCONFIG_TARGET_DEVICE_NAME()
         target_name.header.adapterId = path.targetInfo.adapterId
         target_name.header.id = path.targetInfo.id
@@ -482,7 +482,7 @@ def get_display_info():
             DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME
         )
         target_name.header.size = sizeof(target_name)
-        result = user32.DisplayConfigGetDeviceInfo(byref(target_name.header))
+        result = DisplayConfigGetDeviceInfo(byref(target_name.header))
         if result != 0:
             raise WinError(result)
 
@@ -492,7 +492,7 @@ def get_display_info():
             DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_ADAPTER_NAME
         )
         adapter_name.header.size = sizeof(adapter_name)
-        result = user32.DisplayConfigGetDeviceInfo(byref(adapter_name.header))
+        result = DisplayConfigGetDeviceInfo(byref(adapter_name.header))
         if result != 0:
             raise WinError(result)
 
@@ -503,20 +503,20 @@ def get_display_info():
             DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME
         )
         source_name.header.size = sizeof(source_name)
-        result = user32.DisplayConfigGetDeviceInfo(byref(source_name.header))
+        result = DisplayConfigGetDeviceInfo(byref(source_name.header))
         if result != 0:
             raise WinError(result)
 
         open_adapter = D3DKMT_OPENADAPTERFROMLUID()
         open_adapter.AdapterLuid = adapter_name.header.adapterId
-        result = gdi32.D3DKMTOpenAdapterFromLuid(byref(open_adapter))
+        result = D3DKMTOpenAdapterFromLuid(byref(open_adapter))
         if result != 0:
             raise WinError(result)
 
         caps = D3DKMT_GET_MULTIPLANE_OVERLAY_CAPS()
         caps.hAdapter = open_adapter.hAdapter
         caps.VidPnSourceId = path.sourceInfo.id
-        result = gdi32.D3DKMTGetMultiPlaneOverlayCaps(byref(caps))
+        result = D3DKMTGetMultiPlaneOverlayCaps(byref(caps))
         if result != 0:
             raise WinError(result)
 
@@ -529,11 +529,11 @@ def get_display_info():
                 "rotation": path.targetInfo.rotation.value,
                 "refreshRate": path.targetInfo.refreshRate.Numerator
                 / path.targetInfo.refreshRate.Denominator,
-                "horizontalFrequency": horizontalFrequencies[path.targetInfo.id],
+                "horizontalFrequency": horizontal_frequencies[path.targetInfo.id],
                 "resolution": resolutions[path.sourceInfo.id],
-                "pixelRate": pixelRates[path.targetInfo.id],
+                "pixelRate": pixel_rates[path.targetInfo.id],
                 "scaling": path.targetInfo.scaling.value,
-                "pixelFormat": pixelFormats[path.sourceInfo.id],
+                "pixelFormat": pixel_formats[path.sourceInfo.id],
                 "mpo": {
                     "MaxPlanes": caps.MaxPlanes,
                     "MaxRGBPlanes": caps.MaxRGBPlanes,
@@ -560,7 +560,7 @@ def get_display_info():
 
         close_adapter = D3DKMT_CLOSEADAPTER()
         close_adapter.hAdapter = open_adapter.hAdapter
-        result = gdi32.D3DKMTCloseAdapter(byref(close_adapter))
+        result = D3DKMTCloseAdapter(byref(close_adapter))
         if result != 0:
             raise WinError(result)
 
