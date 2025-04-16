@@ -396,20 +396,18 @@ class Display(TypedDict):
 QDC_ONLY_ACTIVE_PATHS: Final = 0x2
 ERROR_INSUFFICIENT_BUFFER: Final = 0x7A
 
+user32 = windll.user32
+GetDisplayConfigBufferSizes = user32.GetDisplayConfigBufferSizes
+QueryDisplayConfig = user32.QueryDisplayConfig
+DisplayConfigGetDeviceInfo = user32.DisplayConfigGetDeviceInfo
+
+gdi32 = windll.gdi32
+D3DKMTOpenAdapterFromLuid = gdi32.D3DKMTOpenAdapterFromLuid
+D3DKMTGetMultiPlaneOverlayCaps = gdi32.D3DKMTGetMultiPlaneOverlayCaps
+D3DKMTCloseAdapter = gdi32.D3DKMTCloseAdapter
+
 
 def get_display_info():
-    user32 = windll.user32
-
-    GetDisplayConfigBufferSizes = user32.GetDisplayConfigBufferSizes
-    QueryDisplayConfig = user32.QueryDisplayConfig
-    DisplayConfigGetDeviceInfo = user32.DisplayConfigGetDeviceInfo
-
-    gdi32 = windll.gdi32
-
-    D3DKMTOpenAdapterFromLuid = gdi32.D3DKMTOpenAdapterFromLuid
-    D3DKMTGetMultiPlaneOverlayCaps = gdi32.D3DKMTGetMultiPlaneOverlayCaps
-    D3DKMTCloseAdapter = gdi32.D3DKMTCloseAdapter
-
     result = ERROR_INSUFFICIENT_BUFFER
 
     num_path_array_elements = c_uint32()

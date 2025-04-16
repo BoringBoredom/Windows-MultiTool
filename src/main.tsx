@@ -11,7 +11,7 @@ createRoot(document.getElementById("root")!).render(
     <MantineProvider defaultColorScheme="dark">
       <AppShell
         navbar={{
-          width: { base: 150 },
+          width: { base: 100 },
           breakpoint: 0,
         }}
         transitionDuration={0}

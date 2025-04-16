@@ -1,0 +1,12 @@
+.powerPlanSelection {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--mantine-color-dark-8);
+  border: 1px solid var(--mantine-color-dark-5);
+}
+
+.valuesWidth {
+  min-width: 10rem;
+}

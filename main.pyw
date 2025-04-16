@@ -49,6 +49,25 @@ class Api:
 
         return get_scheduling_info()
 
+    def getPowerSettings(self):
+        from py.POWER_SETTINGS import get_power_settings
+
+        return get_power_settings()
+
+    def writeValueIndex(
+        self,
+        scheme_guid_str: str,
+        subgroup_guid_str: str,
+        setting_guid_str: str,
+        value_index: int,
+        is_ac: bool,
+    ):
+        from py.POWER_SETTINGS import write_value_index
+
+        write_value_index(
+            scheme_guid_str, subgroup_guid_str, setting_guid_str, value_index, is_ac
+        )
+
 
 def on_shown(window):  # type: ignore
     window.maximize()  # type: ignore

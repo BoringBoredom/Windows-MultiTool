@@ -4,6 +4,7 @@ import packageJson from "../package.json";
 import DISPLAY_INFO, { type DisplayInfo } from "./DISPLAY_INFO";
 import IFEO, { type IfeoData } from "./IFEO";
 import PCI_IRQs, { type SystemInfo } from "./PCI_IRQs";
+import POWER_SETTINGS, { type PowerSettings } from "./POWER_SETTINGS";
 import SCHEDULING, { type SchedulingInfo } from "./SCHEDULING";
 
 declare global {
@@ -15,6 +16,14 @@ declare global {
         getDisplayInfo: () => Promise<DisplayInfo>;
         getIfeoData: () => Promise<IfeoData>;
         getSchedulingInfo: () => Promise<SchedulingInfo>;
+        getPowerSettings: () => Promise<PowerSettings>;
+        writeValueIndex: (
+          schemeGuidStr: string,
+          subgroupGuidStr: string,
+          settingGuidStr: string,
+          valueIndex: number,
+          isAc: boolean
+        ) => Promise<void>;
         writeRegistryValue: (
           path: string,
           name: string,
@@ -34,6 +43,7 @@ const navItems = [
   { name: "Display Info", component: <DISPLAY_INFO /> },
   { name: "IFEO", component: <IFEO /> },
   { name: "Scheduling", component: <SCHEDULING /> },
+  { name: "Power Settings", component: <POWER_SETTINGS /> },
 ] as const;
 
 export default function App() {
