@@ -8,3 +8,4 @@
 - Display Information
 - IFEO Priority Management
 - Scheduling Configuration
+- Power Settings
