@@ -72,7 +72,17 @@ export default function POWER_SETTINGS() {
     <Tabs variant="pills" defaultValue={activeSchemeIndex.toString()}>
       <Tabs.List className={s.powerPlanSelection}>
         {powerSchemes.map((powerScheme, index) => (
-          <Tabs.Tab value={index.toString()} key={powerScheme.guid}>
+          <Tabs.Tab
+            value={index.toString()}
+            key={powerScheme.guid}
+            onClick={() => {
+              window.pywebview.api
+                .setActiveScheme(powerScheme.guid)
+                .catch((error: unknown) => {
+                  alert(error);
+                });
+            }}
+          >
             {powerScheme.name}
           </Tabs.Tab>
         ))}

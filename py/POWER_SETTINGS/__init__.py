@@ -79,8 +79,18 @@ PowerReadDescription = powrprof.PowerReadDescription
 PowerReadPossibleDescription = powrprof.PowerReadPossibleDescription
 PowerWriteACValueIndex = powrprof.PowerWriteACValueIndex
 PowerWriteDCValueIndex = powrprof.PowerWriteDCValueIndex
+PowerSetActiveScheme = powrprof.PowerSetActiveScheme
 
 LocalFree = windll.kernel32.LocalFree
+
+
+def set_active_scheme(scheme_guid_str: str):
+    result = PowerSetActiveScheme(
+        None,
+        byref(string_to_guid(scheme_guid_str)),
+    )
+    if result != 0:
+        raise WinError(result)
 
 
 def write_value_index(
@@ -110,6 +120,8 @@ def write_value_index(
         )
         if result != 0:
             raise WinError(result)
+
+    set_active_scheme(scheme_guid_str)
 
 
 def string_to_guid(guid_str: str):

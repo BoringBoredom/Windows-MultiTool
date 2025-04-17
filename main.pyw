@@ -68,6 +68,11 @@ class Api:
             scheme_guid_str, subgroup_guid_str, setting_guid_str, value_index, is_ac
         )
 
+    def setActiveScheme(self, scheme_guid_str: str):
+        from py.POWER_SETTINGS import set_active_scheme
+
+        set_active_scheme(scheme_guid_str)
+
 
 def on_shown(window):  # type: ignore
     window.maximize()  # type: ignore

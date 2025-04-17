@@ -24,6 +24,7 @@ declare global {
           valueIndex: number,
           isAc: boolean
         ) => Promise<void>;
+        setActiveScheme: (schemeGuidStr: string) => Promise<void>;
         writeRegistryValue: (
           path: string,
           name: string,
