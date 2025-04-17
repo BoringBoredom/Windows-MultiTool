@@ -82,7 +82,9 @@ if __name__ == "__main__":
     isDevEnv = not path.exists(path.join(path.dirname(__file__), "gui/index.html"))
     entry_point = "http://localhost:5173/" if isDevEnv else "gui/index.html"
 
-    window = webview.create_window("Windows MultiTool", entry_point, js_api=Api())
+    window = webview.create_window(
+        "Windows MultiTool", entry_point, js_api=Api(), text_select=True
+    )
     window.events.shown += on_shown
 
     webview.start(ssl=True, debug=isDevEnv)
