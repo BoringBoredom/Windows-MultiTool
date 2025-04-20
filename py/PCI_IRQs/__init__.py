@@ -1,3 +1,18 @@
+from ctypes import (
+    POINTER,
+    GetLastError,
+    Structure,
+    WinError,
+    byref,
+    c_byte,
+    c_long,
+    c_ulong,
+    c_wchar_p,
+    cast,
+    sizeof,
+    windll,
+)
+from ctypes.wintypes import BOOL, DWORD, HANDLE, HWND
 from os import cpu_count
 from typing import Final, List, TypedDict
 from winreg import (
@@ -10,7 +25,23 @@ from winreg import (
     QueryValueEx,
 )
 
-BASE_PATH: Final = r"SYSTEM\CurrentControlSet\Enum\PCI"
+from py.utils import GUID
+
+
+class DEVPROPKEY(Structure):
+    _fields_ = [
+        ("fmtid", GUID),
+        ("pid", c_ulong),
+    ]
+
+
+class SP_DEVINFO_DATA(Structure):
+    _fields_ = [
+        ("cbSize", c_ulong),
+        ("ClassGuid", GUID),
+        ("DevInst", c_ulong),
+        ("Reserved", POINTER(c_ulong)),
+    ]
 
 
 class Device(TypedDict):
@@ -22,10 +53,141 @@ class Device(TypedDict):
     AssignmentSetOverride: int | None
     MessageNumberLimit: int | None
     MSISupported: int | None
+    InterruptSupport: int | None
+    MaximumMessageNumberLimit: int | None
 
 
-CONFIGFLAG_DISABLED = 0x1
-CONFIGFLAG_REMOVED = 0x2
+BASE_PATH: Final = r"SYSTEM\CurrentControlSet\Enum\PCI"
+
+CONFIGFLAG_DISABLED: Final = 0x1
+CONFIGFLAG_REMOVED: Final = 0x2
+
+DIGCF_ALLCLASSES: Final = 0x4
+DIGCF_DEVICEINTERFACE: Final = 0x10
+
+ERROR_INSUFFICIENT_BUFFER: Final = 122
+ERROR_NO_MORE_ITEMS: Final = 259
+ERROR_ELEMENT_NOT_FOUND: Final = 1168
+
+setupapi = windll.setupapi
+
+SetupDiGetClassDevsW = setupapi.SetupDiGetClassDevsW
+SetupDiGetClassDevsW.argtypes = [POINTER(GUID), c_wchar_p, HWND, DWORD]
+SetupDiGetClassDevsW.restype = HANDLE
+
+SetupDiEnumDeviceInfo = setupapi.SetupDiEnumDeviceInfo
+SetupDiEnumDeviceInfo.argtypes = [HANDLE, DWORD, POINTER(SP_DEVINFO_DATA)]
+SetupDiEnumDeviceInfo.restype = BOOL
+
+SetupDiGetDevicePropertyW = setupapi.SetupDiGetDevicePropertyW
+SetupDiGetDevicePropertyW.argtypes = [
+    HANDLE,
+    POINTER(SP_DEVINFO_DATA),
+    POINTER(DEVPROPKEY),
+    POINTER(c_ulong),
+    POINTER(c_byte),
+    DWORD,
+    POINTER(DWORD),
+    DWORD,
+]
+SetupDiGetDevicePropertyW.restype = BOOL
+
+SetupDiDestroyDeviceInfoList = setupapi.SetupDiDestroyDeviceInfoList
+SetupDiDestroyDeviceInfoList.argtypes = [HANDLE]
+SetupDiDestroyDeviceInfoList.restype = BOOL
+
+
+def get_device_property(
+    dev_info_handle: HANDLE,
+    dev_info_data: SP_DEVINFO_DATA,
+    DEVPKEY: DEVPROPKEY,
+):
+    property_type = c_ulong()
+    required_size = c_ulong()
+
+    result = SetupDiGetDevicePropertyW(
+        dev_info_handle,
+        byref(dev_info_data),
+        byref(DEVPKEY),
+        byref(property_type),
+        None,
+        0,
+        byref(required_size),
+        0,
+    )
+    last_error = GetLastError()
+    # if last_error == ERROR_ELEMENT_NOT_FOUND:
+    #     return None
+    if last_error != ERROR_INSUFFICIENT_BUFFER:
+        raise WinError()
+
+    property_buffer = (c_byte * required_size.value)()
+    result = SetupDiGetDevicePropertyW(
+        dev_info_handle,
+        byref(dev_info_data),
+        byref(DEVPKEY),
+        byref(property_type),
+        property_buffer,
+        required_size.value,
+        None,
+        0,
+    )
+    if result == 0:
+        raise WinError()
+    else:
+        return cast(property_buffer, POINTER(c_long)).contents.value
+
+
+def get_additional_info(instance_id: str):
+    extra_info: dict[str, int | None] = {
+        "InterruptSupport": None,
+        "MaximumMessageNumberLimit": None,
+    }
+
+    device_instance_id = c_wchar_p(instance_id)
+
+    dev_info_handle = SetupDiGetClassDevsW(
+        None,
+        device_instance_id,
+        None,
+        DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE,
+    )
+    if dev_info_handle == -1:
+        raise WinError()
+
+    dev_info_data = SP_DEVINFO_DATA()
+    dev_info_data.cbSize = sizeof(SP_DEVINFO_DATA)
+
+    result = SetupDiEnumDeviceInfo(dev_info_handle, 0, byref(dev_info_data))
+    if result == 0:
+        if GetLastError() == ERROR_NO_MORE_ITEMS:
+            SetupDiDestroyDeviceInfoList(dev_info_handle)
+
+            return extra_info
+
+        raise WinError()
+
+    DEVPKEY_PciDevice_InterruptSupport = DEVPROPKEY(
+        GUID("3ab22e31-8264-4b4e-9af5-a8d2d8e33e62"), 14
+    )
+    DEVPKEY_PciDevice_InterruptMessageMaximum = DEVPROPKEY(
+        GUID("3ab22e31-8264-4b4e-9af5-a8d2d8e33e62"), 15
+    )
+
+    extra_info = {
+        "InterruptSupport": get_device_property(
+            dev_info_handle,
+            dev_info_data,
+            DEVPKEY_PciDevice_InterruptSupport,
+        ),
+        "MaximumMessageNumberLimit": get_device_property(
+            dev_info_handle, dev_info_data, DEVPKEY_PciDevice_InterruptMessageMaximum
+        ),
+    }
+
+    SetupDiDestroyDeviceInfoList(dev_info_handle)
+
+    return extra_info
 
 
 def get_system_info():
@@ -42,9 +204,9 @@ def get_system_info():
                 HKEY_LOCAL_MACHINE, partial_device_path, 0, KEY_READ | KEY_WOW64_64KEY
             ) as partial_device_key:
                 if QueryInfoKey(partial_device_key)[0] > 0:
-                    device_path = (
-                        f"{partial_device_path}\\{EnumKey(partial_device_key, 0)}"
-                    )
+                    second_device_id = EnumKey(partial_device_key, 0)
+                    device_path = f"{partial_device_path}\\{second_device_id}"
+                    instance_id = f"PCI\\{partial_device_id}\\{second_device_id}"
 
                     with OpenKeyEx(
                         HKEY_LOCAL_MACHINE, device_path, 0, KEY_READ | KEY_WOW64_64KEY
@@ -114,6 +276,8 @@ def get_system_info():
                             message_number_limit = None
                             msi_supported = None
 
+                        extra_info = get_additional_info(instance_id)
+
                         devices.append(
                             {
                                 "DeviceId": partial_device_id,
@@ -124,6 +288,10 @@ def get_system_info():
                                 "AssignmentSetOverride": assignment_set_override,
                                 "MessageNumberLimit": message_number_limit,
                                 "MSISupported": msi_supported,
+                                "InterruptSupport": extra_info.get("InterruptSupport"),
+                                "MaximumMessageNumberLimit": extra_info.get(
+                                    "MaximumMessageNumberLimit"
+                                ),
                             }
                         )
 

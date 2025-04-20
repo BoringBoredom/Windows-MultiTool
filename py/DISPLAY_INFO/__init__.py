@@ -1,4 +1,5 @@
 from ctypes import (
+    POINTER,
     Structure,
     Union,
     WinError,
@@ -354,6 +355,14 @@ class D3DKMT_GET_MULTIPLANE_OVERLAY_CAPS(Structure):
     ]
 
 
+class DISPLAYCONFIG_TOPOLOGY_ID(c_uint32):
+    DISPLAYCONFIG_TOPOLOGY_INTERNAL = 0x1
+    DISPLAYCONFIG_TOPOLOGY_CLONE = 0x2
+    DISPLAYCONFIG_TOPOLOGY_EXTEND = 0x4
+    DISPLAYCONFIG_TOPOLOGY_EXTERNAL = 0x8
+    DISPLAYCONFIG_TOPOLOGY_FORCE_UINT32 = 0xFFFFFFFF
+
+
 class MPOCaps(TypedDict):
     Rotation: int
     RotationWithoutIndependentFlip: int
@@ -397,14 +406,39 @@ QDC_ONLY_ACTIVE_PATHS: Final = 0x2
 ERROR_INSUFFICIENT_BUFFER: Final = 0x7A
 
 user32 = windll.user32
+
 GetDisplayConfigBufferSizes = user32.GetDisplayConfigBufferSizes
+GetDisplayConfigBufferSizes.argtypes = [c_uint32, POINTER(c_uint32), POINTER(c_uint32)]
+GetDisplayConfigBufferSizes.restype = LONG
+
 QueryDisplayConfig = user32.QueryDisplayConfig
+QueryDisplayConfig.argtypes = [
+    c_uint32,
+    POINTER(c_uint32),
+    POINTER(DISPLAYCONFIG_PATH_INFO),
+    POINTER(c_uint32),
+    POINTER(DISPLAYCONFIG_MODE_INFO),
+    POINTER(DISPLAYCONFIG_TOPOLOGY_ID),
+]
+QueryDisplayConfig.restype = LONG
+
 DisplayConfigGetDeviceInfo = user32.DisplayConfigGetDeviceInfo
+DisplayConfigGetDeviceInfo.argtypes = [POINTER(DISPLAYCONFIG_DEVICE_INFO_HEADER)]
+DisplayConfigGetDeviceInfo.restype = LONG
 
 gdi32 = windll.gdi32
+
 D3DKMTOpenAdapterFromLuid = gdi32.D3DKMTOpenAdapterFromLuid
+D3DKMTOpenAdapterFromLuid.argtypes = [POINTER(D3DKMT_OPENADAPTERFROMLUID)]
+D3DKMTOpenAdapterFromLuid.restype = LONG
+
 D3DKMTGetMultiPlaneOverlayCaps = gdi32.D3DKMTGetMultiPlaneOverlayCaps
+D3DKMTGetMultiPlaneOverlayCaps.argtypes = [POINTER(D3DKMT_GET_MULTIPLANE_OVERLAY_CAPS)]
+D3DKMTGetMultiPlaneOverlayCaps.restype = LONG
+
 D3DKMTCloseAdapter = gdi32.D3DKMTCloseAdapter
+D3DKMTCloseAdapter.argtypes = [POINTER(D3DKMT_CLOSEADAPTER)]
+D3DKMTCloseAdapter.restype = LONG
 
 
 def get_display_info():

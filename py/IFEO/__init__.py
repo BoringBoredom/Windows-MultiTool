@@ -21,11 +21,8 @@ class IFEO(TypedDict):
     PagePriority: int | None
 
 
-IfeoData = Dict[str, IFEO]
-
-
 def get_ifeo_data():
-    ifeo: IfeoData = {}
+    ifeo: Dict[str, IFEO] = {}
 
     with OpenKeyEx(
         HKEY_LOCAL_MACHINE, BASE_PATH, 0, KEY_READ | KEY_WOW64_64KEY

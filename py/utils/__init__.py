@@ -1,3 +1,5 @@
+from ctypes import Structure, c_ubyte, c_ulong, c_ushort
+from uuid import UUID
 from winreg import (
     HKEY_LOCAL_MACHINE,
     KEY_READ,
@@ -11,6 +13,33 @@ from winreg import (
     OpenKeyEx,
     SetValueEx,
 )
+
+
+class GUID(Structure):
+    _fields_ = [
+        ("Data1", c_ulong),
+        ("Data2", c_ushort),
+        ("Data3", c_ushort),
+        ("Data4", c_ubyte * 8),
+    ]
+
+    def __init__(self, uuid_string: str | None = None):
+        if uuid_string:
+            uuid_obj = UUID(uuid_string)
+            self.Data1 = uuid_obj.time_low
+            self.Data2 = uuid_obj.time_mid
+            self.Data3 = uuid_obj.time_hi_version
+            for i in range(8):
+                self.Data4[i] = uuid_obj.bytes[8 + i]
+        super().__init__()
+
+    def __str__(self):
+        return "{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}".format(
+            self.Data1,
+            self.Data2,
+            self.Data3,
+            *self.Data4,
+        )
 
 
 def write_registry_value(path: str, name: str, type: int, value: int | str):

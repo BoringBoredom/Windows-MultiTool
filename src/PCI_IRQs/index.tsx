@@ -18,7 +18,28 @@ export interface SystemInfo {
     AssignmentSetOverride: number | null;
     MessageNumberLimit: number | null;
     MSISupported: number | null;
+    InterruptSupport: number | null;
+    MaximumMessageNumberLimit: number | null;
   }[];
+}
+
+function formatInterruptSupport(value: number | null) {
+  if (value === null) {
+    return;
+  }
+
+  const supportedTypes: string[] = [];
+  if (value & 0x1) {
+    supportedTypes.push("Line");
+  }
+  if (value & 0x2) {
+    supportedTypes.push("MSI");
+  }
+  if (value & 0x4) {
+    supportedTypes.push("MSI-X");
+  }
+
+  return supportedTypes.length > 0 ? supportedTypes.join(", ") : "-";
 }
 
 export default function PCI_IRQs() {
@@ -49,6 +70,8 @@ export default function PCI_IRQs() {
           <Table.Th>CPUs</Table.Th>
           <Table.Th>MSI</Table.Th>
           <Table.Th>Message Limit</Table.Th>
+          <Table.Th>Max Limit</Table.Th>
+          <Table.Th>Interrupt Type</Table.Th>
         </Table.Tr>
       </Table.Thead>
 
@@ -81,6 +104,12 @@ export default function PCI_IRQs() {
 
             <Table.Td>
               <MessageNumberLimitField device={device} />
+            </Table.Td>
+
+            <Table.Td>{device.MaximumMessageNumberLimit}</Table.Td>
+
+            <Table.Td>
+              {formatInterruptSupport(device.InterruptSupport)}
             </Table.Td>
           </Table.Tr>
         ))}

@@ -1,28 +1,21 @@
 from ctypes import (
     POINTER,
-    Structure,
     WinError,
     byref,
-    c_ubyte,
+    c_long,
     c_ulong,
-    c_ushort,
+    c_wchar_p,
     create_unicode_buffer,
     sizeof,
     windll,
 )
+from ctypes.wintypes import DWORD, HKEY, HLOCAL
 from typing import Final, List, TypedDict, cast
 
-
-class GUID(Structure):
-    _fields_ = [
-        ("Data1", c_ulong),
-        ("Data2", c_ushort),
-        ("Data3", c_ushort),
-        ("Data4", c_ubyte * 8),
-    ]
+from py.utils import GUID
 
 
-class SubGroup(TypedDict):
+class Subgroup(TypedDict):
     guid: str
     name: str | None
 
@@ -46,7 +39,7 @@ class Setting(TypedDict):
     description: str
     options: List[Option] | None
     range: Range | None
-    subgroup: SubGroup
+    subgroup: Subgroup
     ac: int
     dc: int
 
@@ -57,37 +50,152 @@ class PowerScheme(TypedDict):
     settings: List[Setting]
 
 
+class POWER_DATA_ACCESSOR(c_long):
+    ACCESS_SCHEME = 16
+    ACCESS_SUBGROUP = 17
+    ACCESS_INDIVIDUAL_SETTING = 18
+
+
 ERROR_FILE_NOT_FOUND: Final = 2
 ERROR_NO_MORE_ITEMS: Final = 259
 
-ACCESS_SCHEME: Final = 16
-ACCESS_SUBGROUP: Final = 17
-ACCESS_INDIVIDUAL_SETTING: Final = 18
-
 powrprof = windll.powrprof
+
 PowerGetActiveScheme = powrprof.PowerGetActiveScheme
+PowerGetActiveScheme.argtypes = [HKEY, POINTER(POINTER(GUID))]
+PowerGetActiveScheme.restype = DWORD
+
 PowerEnumerate = powrprof.PowerEnumerate
+PowerEnumerate.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POWER_DATA_ACCESSOR,
+    c_ulong,
+    POINTER(GUID),
+    POINTER(DWORD),
+]
+PowerEnumerate.restype = DWORD
+
 PowerReadFriendlyName = powrprof.PowerReadFriendlyName
+PowerReadFriendlyName.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(GUID),
+    c_wchar_p,
+    POINTER(DWORD),
+]
+PowerReadFriendlyName.restype = DWORD
+
 PowerReadACValueIndex = powrprof.PowerReadACValueIndex
+PowerReadACValueIndex.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(DWORD),
+]
+PowerReadACValueIndex.restype = DWORD
+
 PowerReadDCValueIndex = powrprof.PowerReadDCValueIndex
+PowerReadDCValueIndex.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(DWORD),
+]
+PowerReadDCValueIndex.restype = DWORD
+
 PowerReadValueMin = powrprof.PowerReadValueMin
+PowerReadValueMin.argtypes = [HKEY, POINTER(GUID), POINTER(GUID), POINTER(DWORD)]
+PowerReadValueMin.restype = DWORD
+
 PowerReadValueMax = powrprof.PowerReadValueMax
+PowerReadValueMax.argtypes = [HKEY, POINTER(GUID), POINTER(GUID), POINTER(DWORD)]
+PowerReadValueMax.restype = DWORD
+
 PowerReadValueIncrement = powrprof.PowerReadValueIncrement
+PowerReadValueIncrement.argtypes = [HKEY, POINTER(GUID), POINTER(GUID), POINTER(DWORD)]
+PowerReadValueIncrement.restype = DWORD
+
 PowerReadValueUnitsSpecifier = powrprof.PowerReadValueUnitsSpecifier
+PowerReadValueUnitsSpecifier.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    c_wchar_p,
+    POINTER(DWORD),
+]
+PowerReadValueUnitsSpecifier.restype = DWORD
+
 PowerReadPossibleFriendlyName = powrprof.PowerReadPossibleFriendlyName
+PowerReadPossibleFriendlyName.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    c_ulong,
+    c_wchar_p,
+    POINTER(DWORD),
+]
+PowerReadPossibleFriendlyName.restype = DWORD
+
 PowerReadDescription = powrprof.PowerReadDescription
+PowerReadDescription.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(GUID),
+    c_wchar_p,
+    POINTER(DWORD),
+]
+PowerReadDescription.restype = DWORD
+
 PowerReadPossibleDescription = powrprof.PowerReadPossibleDescription
+PowerReadPossibleDescription.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    c_ulong,
+    c_wchar_p,
+    POINTER(DWORD),
+]
+PowerReadPossibleDescription.restype = DWORD
+
 PowerWriteACValueIndex = powrprof.PowerWriteACValueIndex
+PowerWriteACValueIndex.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(GUID),
+    DWORD,
+]
+PowerWriteACValueIndex.restype = DWORD
+
 PowerWriteDCValueIndex = powrprof.PowerWriteDCValueIndex
+PowerWriteDCValueIndex.argtypes = [
+    HKEY,
+    POINTER(GUID),
+    POINTER(GUID),
+    POINTER(GUID),
+    DWORD,
+]
+PowerWriteDCValueIndex.restype = DWORD
+
 PowerSetActiveScheme = powrprof.PowerSetActiveScheme
+PowerSetActiveScheme.argtypes = [HKEY, POINTER(GUID)]
+PowerSetActiveScheme.restype = DWORD
 
 LocalFree = windll.kernel32.LocalFree
+LocalFree.argtypes = [HLOCAL]
+LocalFree.restype = HLOCAL
 
 
 def set_active_scheme(scheme_guid_str: str):
     result = PowerSetActiveScheme(
         None,
-        byref(string_to_guid(scheme_guid_str)),
+        byref(GUID(scheme_guid_str)),
     )
     if result != 0:
         raise WinError(result)
@@ -103,9 +211,9 @@ def write_value_index(
     if is_ac:
         result = PowerWriteACValueIndex(
             None,
-            byref(string_to_guid(scheme_guid_str)),
-            byref(string_to_guid(subgroup_guid_str)),
-            byref(string_to_guid(setting_guid_str)),
+            byref(GUID(scheme_guid_str)),
+            byref(GUID(subgroup_guid_str)),
+            byref(GUID(setting_guid_str)),
             value_index,
         )
         if result != 0:
@@ -113,50 +221,15 @@ def write_value_index(
     else:
         result = PowerWriteDCValueIndex(
             None,
-            byref(string_to_guid(scheme_guid_str)),
-            byref(string_to_guid(subgroup_guid_str)),
-            byref(string_to_guid(setting_guid_str)),
+            byref(GUID(scheme_guid_str)),
+            byref(GUID(subgroup_guid_str)),
+            byref(GUID(setting_guid_str)),
             value_index,
         )
         if result != 0:
             raise WinError(result)
 
     set_active_scheme(scheme_guid_str)
-
-
-def string_to_guid(guid_str: str):
-    parts = guid_str.split("-")
-
-    data1 = int(parts[0], 16)
-    data2 = int(parts[1], 16)
-    data3 = int(parts[2], 16)
-    data4 = bytes.fromhex(parts[3]) + bytes.fromhex(parts[4])
-
-    guid = GUID()
-    guid.Data1 = c_ulong(data1)
-    guid.Data2 = c_ushort(data2)
-    guid.Data3 = c_ushort(data3)
-    guid.Data4 = (c_ubyte * 8)(*data4)
-
-    return guid
-
-
-def guid_to_string(guid: GUID):
-    return (
-        "{:08x}-{:04x}-{:04x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}".format(
-            guid.Data1,
-            guid.Data2,
-            guid.Data3,
-            guid.Data4[0],
-            guid.Data4[1],
-            guid.Data4[2],
-            guid.Data4[3],
-            guid.Data4[4],
-            guid.Data4[5],
-            guid.Data4[6],
-            guid.Data4[7],
-        )
-    )
 
 
 def get_friendly_name(
@@ -196,7 +269,7 @@ def get_friendly_name(
 def get_settings(
     scheme_guid: GUID,
     current_scheme_settings: List[Setting],
-    current_subgroup: SubGroup,
+    current_subgroup: Subgroup,
     subgroup_guid: GUID | None = None,
 ):
     setting_index = 0
@@ -208,7 +281,7 @@ def get_settings(
             None,
             byref(scheme_guid),
             byref(subgroup_guid) if subgroup_guid else None,
-            ACCESS_INDIVIDUAL_SETTING,
+            POWER_DATA_ACCESSOR.ACCESS_INDIVIDUAL_SETTING,
             setting_index,
             byref(setting_guid),
             byref(buffer_size),
@@ -394,7 +467,7 @@ def get_settings(
                 setting_options = None
 
         current_setting: Setting = {
-            "guid": guid_to_string(setting_guid),
+            "guid": str(setting_guid),
             "name": get_friendly_name(
                 scheme_guid=scheme_guid,
                 subgroup_guid=subgroup_guid,
@@ -423,7 +496,7 @@ def get_power_settings():
             None,
             None,
             None,
-            ACCESS_SCHEME,
+            POWER_DATA_ACCESSOR.ACCESS_SCHEME,
             scheme_index,
             byref(scheme_guid),
             byref(buffer_size),
@@ -437,7 +510,7 @@ def get_power_settings():
 
         current_scheme_settings: List[Setting] = []
 
-        current_subgroup: SubGroup = {
+        current_subgroup: Subgroup = {
             "guid": "fea3413e-7e05-4911-9a71-700331f1c294",
             "name": "NO_SUBGROUP_GUID",
         }
@@ -453,7 +526,7 @@ def get_power_settings():
                 None,
                 byref(scheme_guid),
                 None,
-                ACCESS_SUBGROUP,
+                POWER_DATA_ACCESSOR.ACCESS_SUBGROUP,
                 subgroup_index,
                 byref(subgroup_guid),
                 byref(buffer_size),
@@ -466,7 +539,7 @@ def get_power_settings():
                 raise WinError(result)
 
             current_subgroup = {
-                "guid": guid_to_string(subgroup_guid),
+                "guid": str(subgroup_guid),
                 "name": get_friendly_name(
                     scheme_guid=scheme_guid, subgroup_guid=subgroup_guid
                 ),
@@ -478,7 +551,7 @@ def get_power_settings():
 
         power_schemes.append(
             {
-                "guid": guid_to_string(scheme_guid),
+                "guid": str(scheme_guid),
                 "name": get_friendly_name(scheme_guid=scheme_guid),
                 "settings": current_scheme_settings,
             }
@@ -489,7 +562,7 @@ def get_power_settings():
     if result != 0:
         raise WinError(result)
 
-    active_guid_str = guid_to_string(active_scheme_guid_ptr.contents)
+    active_guid_str = str(active_scheme_guid_ptr.contents)
     LocalFree(active_scheme_guid_ptr)
 
     return {"activeSchemeGuid": active_guid_str, "powerSchemes": power_schemes}
