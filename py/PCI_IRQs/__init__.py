@@ -116,8 +116,8 @@ def get_device_property(
         0,
     )
     last_error = GetLastError()
-    # if last_error == ERROR_ELEMENT_NOT_FOUND:
-    #     return None
+    if last_error == ERROR_ELEMENT_NOT_FOUND:
+        return None
     if last_error != ERROR_INSUFFICIENT_BUFFER:
         raise WinError()
 
