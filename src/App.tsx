@@ -117,7 +117,9 @@ export default function App() {
                           "/releases/latest"
                       )
                       .catch((error: unknown) => {
-                        alert(error);
+                        alert(
+                          error instanceof Error ? error.toString() : error
+                        );
                       });
                   }}
                 >

@@ -54,7 +54,7 @@ export default function POWER_SETTINGS() {
         setPowerSettings(data);
       })
       .catch((error: unknown) => {
-        alert(error);
+        alert(error instanceof Error ? error.toString() : error);
       });
   }, []);
 
@@ -79,7 +79,7 @@ export default function POWER_SETTINGS() {
               window.pywebview.api
                 .setActiveScheme(powerScheme.guid)
                 .catch((error: unknown) => {
-                  alert(error);
+                  alert(error instanceof Error ? error.toString() : error);
                 });
             }}
           >

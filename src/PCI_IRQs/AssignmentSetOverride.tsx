@@ -40,7 +40,7 @@ export default function AssignmentSetOverrideField({
                   );
                 })
                 .catch((error: unknown) => {
-                  alert(error);
+                  alert(error instanceof Error ? error.toString() : error);
                 });
             } else {
               const binaryString = Array.from({ length: cpus }, (_, index) =>
@@ -62,7 +62,7 @@ export default function AssignmentSetOverrideField({
                   );
                 })
                 .catch((error: unknown) => {
-                  alert(error);
+                  alert(error instanceof Error ? error.toString() : error);
                 });
             }
           }}
@@ -101,7 +101,7 @@ export default function AssignmentSetOverrideField({
                   setActiveCpus(allCpus);
                 })
                 .catch((error: unknown) => {
-                  alert(error);
+                  alert(error instanceof Error ? error.toString() : error);
                 });
             }}
           >
@@ -120,7 +120,7 @@ export default function AssignmentSetOverrideField({
                   setActiveCpus([]);
                 })
                 .catch((error: unknown) => {
-                  alert(error);
+                  alert(error instanceof Error ? error.toString() : error);
                 });
             }}
           >

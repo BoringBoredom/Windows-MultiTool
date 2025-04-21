@@ -57,7 +57,7 @@ export default function AddNewProcess({
               setNewProcessName("");
             })
             .catch((error: unknown) => {
-              alert(error);
+              alert(error instanceof Error ? error.toString() : error);
             });
         }}
       >

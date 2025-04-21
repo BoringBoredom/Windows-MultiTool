@@ -35,7 +35,7 @@ export default function AffinityMaskField({
                 setActiveCpus(value.sort((a, b) => parseInt(a) - parseInt(b)));
               })
               .catch((error: unknown) => {
-                alert(error);
+                alert(error instanceof Error ? error.toString() : error);
               });
           } else {
             const binaryString = Array.from({ length: cpus }, (_, index) =>
@@ -55,7 +55,7 @@ export default function AffinityMaskField({
                 setActiveCpus(value.sort((a, b) => parseInt(a) - parseInt(b)));
               })
               .catch((error: unknown) => {
-                alert(error);
+                alert(error instanceof Error ? error.toString() : error);
               });
           }
         }}
@@ -94,7 +94,7 @@ export default function AffinityMaskField({
                 setActiveCpus(allCpus);
               })
               .catch((error: unknown) => {
-                alert(error);
+                alert(error instanceof Error ? error.toString() : error);
               });
           }}
         >
@@ -110,7 +110,7 @@ export default function AffinityMaskField({
                 setActiveCpus([]);
               })
               .catch((error: unknown) => {
-                alert(error);
+                alert(error instanceof Error ? error.toString() : error);
               });
           }}
         >

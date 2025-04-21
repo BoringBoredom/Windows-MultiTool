@@ -24,7 +24,7 @@ export default function IFEO() {
         setIfeoData(new Map(Object.entries(data)));
       })
       .catch((error: unknown) => {
-        alert(error);
+        alert(error instanceof Error ? error.toString() : error);
       });
   }, []);
 
@@ -70,7 +70,9 @@ export default function IFEO() {
                           });
                         })
                         .catch((error: unknown) => {
-                          alert(error);
+                          alert(
+                            error instanceof Error ? error.toString() : error
+                          );
                         });
                     }}
                   >

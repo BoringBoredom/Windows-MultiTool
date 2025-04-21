@@ -21,7 +21,7 @@ export default function SCHEDULING() {
         setSchedulingInfo(data);
       })
       .catch((error: unknown) => {
-        alert(error);
+        alert(error instanceof Error ? error.toString() : error);
       });
   }, []);
 

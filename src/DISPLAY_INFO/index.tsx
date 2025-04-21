@@ -100,7 +100,7 @@ export default function DISPLAY_INFO() {
         setDisplayInfo(data);
       })
       .catch((error: unknown) => {
-        alert(error);
+        alert(error instanceof Error ? error.toString() : error);
       });
   }, []);
 

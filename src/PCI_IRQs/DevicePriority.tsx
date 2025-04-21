@@ -30,7 +30,7 @@ export default function DevicePriorityField({
               setValue(value);
             })
             .catch((error: unknown) => {
-              alert(error);
+              alert(error instanceof Error ? error.toString() : error);
             });
         } else {
           window.pywebview.api
@@ -44,7 +44,7 @@ export default function DevicePriorityField({
               setValue(value);
             })
             .catch((error: unknown) => {
-              alert(error);
+              alert(error instanceof Error ? error.toString() : error);
             });
         }
       }}

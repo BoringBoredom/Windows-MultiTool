@@ -52,7 +52,7 @@ export default function PCI_IRQs() {
         setSystemInfo(data);
       })
       .catch((error: unknown) => {
-        alert(error);
+        alert(error instanceof Error ? error.toString() : error);
       });
   }, []);
 
