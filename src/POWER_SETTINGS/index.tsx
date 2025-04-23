@@ -88,7 +88,7 @@ export default function POWER_SETTINGS() {
         ))}
       </Tabs.List>
 
-      <Table stickyHeader>
+      <Table withColumnBorders stickyHeader>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Subgroup</Table.Th>
