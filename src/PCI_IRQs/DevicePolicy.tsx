@@ -17,17 +17,17 @@ export default function DevicePolicyField({
       clearable
       value={value}
       data={[
-        { label: "IrqPolicyMachineDefault", value: "0" },
-        { label: "IrqPolicyAllCloseProcessors", value: "1" },
-        { label: "IrqPolicyOneCloseProcessor", value: "2" },
-        { label: "IrqPolicyAllProcessorsInMachine", value: "3" },
-        { label: "IrqPolicySpecifiedProcessors", value: "4" },
+        { label: "Machine Default", value: "0" },
+        { label: "All Close Processors", value: "1" },
+        { label: "One Close Processor", value: "2" },
+        { label: "All Processors In Machine", value: "3" },
+        { label: "Specified Processors", value: "4" },
         {
-          label: "IrqPolicySpreadMessagesAcrossAllProcessors",
+          label: "Spread Messages Across All Processors",
           value: "5",
         },
         {
-          label: "IrqPolicyAllProcessorsInMachineWhenSteered",
+          label: "All Processors In Machine When Steered",
           value: "6",
         },
       ]}

@@ -17,10 +17,10 @@ export default function DevicePriorityField({
       clearable
       value={value}
       data={[
-        { label: "IrqPriorityUndefined", value: "0" },
-        { label: "IrqPriorityLow", value: "1" },
-        { label: "IrqPriorityNormal", value: "2" },
-        { label: "IrqPriorityHigh", value: "3" },
+        { label: "Undefined", value: "0" },
+        { label: "Low", value: "1" },
+        { label: "Normal", value: "2" },
+        { label: "High", value: "3" },
       ]}
       onChange={(value) => {
         if (value === null) {
