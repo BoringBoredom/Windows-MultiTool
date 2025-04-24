@@ -1,4 +1,4 @@
-from typing import Dict, Final, TypedDict
+from typing import Final, TypedDict
 from winreg import (
     HKEY_LOCAL_MACHINE,
     KEY_READ,
@@ -22,7 +22,7 @@ class IFEO(TypedDict):
 
 
 def get_ifeo_data():
-    ifeo: Dict[str, IFEO] = {}
+    ifeo: dict[str, IFEO] = {}
 
     with OpenKeyEx(
         HKEY_LOCAL_MACHINE, BASE_PATH, 0, KEY_READ | KEY_WOW64_64KEY

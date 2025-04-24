@@ -10,7 +10,7 @@ from ctypes import (
     windll,
 )
 from ctypes.wintypes import DWORD, HKEY, HLOCAL
-from typing import Final, List, TypedDict, cast
+from typing import Final, TypedDict, cast
 
 from py.utils import GUID
 
@@ -37,7 +37,7 @@ class Setting(TypedDict):
     guid: str
     name: str
     description: str
-    options: List[Option] | None
+    options: list[Option] | None
     range: Range | None
     subgroup: Subgroup
     ac: int
@@ -47,7 +47,7 @@ class Setting(TypedDict):
 class PowerScheme(TypedDict):
     guid: str
     name: str
-    settings: List[Setting]
+    settings: list[Setting]
 
 
 class POWER_DATA_ACCESSOR(c_long):
@@ -268,7 +268,7 @@ def get_friendly_name(
 
 def get_settings(
     scheme_guid: GUID,
-    current_scheme_settings: List[Setting],
+    current_scheme_settings: list[Setting],
     current_subgroup: Subgroup,
     subgroup_guid: GUID | None = None,
 ):
@@ -340,7 +340,7 @@ def get_settings(
             raise WinError(result)
 
         setting_range: Range | None = None
-        setting_options: List[Option] | None = None
+        setting_options: list[Option] | None = None
 
         min_value = c_ulong()
         result = PowerReadValueMin(
@@ -485,7 +485,7 @@ def get_settings(
 
 
 def get_power_settings():
-    power_schemes: List[PowerScheme] = []
+    power_schemes: list[PowerScheme] = []
 
     scheme_index = 0
     while True:
@@ -508,7 +508,7 @@ def get_power_settings():
         if result != 0:
             raise WinError(result)
 
-        current_scheme_settings: List[Setting] = []
+        current_scheme_settings: list[Setting] = []
 
         current_subgroup: Subgroup = {
             "guid": "fea3413e-7e05-4911-9a71-700331f1c294",

@@ -13,7 +13,7 @@ from ctypes import (
     windll,
 )
 from ctypes.wintypes import BOOL, LONG, POINTL, RECTL, ULONG, WCHAR
-from typing import Final, List, TypedDict
+from typing import Final, TypedDict
 
 
 class LUID(Structure):
@@ -478,7 +478,7 @@ def get_display_info():
     if result != 0:
         raise WinError(result)
 
-    displays: List[Display] = []
+    displays: list[Display] = []
 
     pixel_formats = {}
     horizontal_frequencies = {}

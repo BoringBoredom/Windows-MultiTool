@@ -14,7 +14,7 @@ from ctypes import (
 )
 from ctypes.wintypes import BOOL, DWORD, HANDLE, HWND
 from os import cpu_count
-from typing import Final, List, TypedDict
+from typing import Final, TypedDict
 from winreg import (
     HKEY_LOCAL_MACHINE,
     KEY_READ,
@@ -191,7 +191,7 @@ def get_additional_info(instance_id: str):
 
 
 def get_system_info():
-    devices: List[Device] = []
+    devices: list[Device] = []
 
     with OpenKeyEx(
         HKEY_LOCAL_MACHINE, BASE_PATH, 0, KEY_READ | KEY_WOW64_64KEY
