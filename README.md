@@ -9,3 +9,4 @@
 - IFEO Priority Management
 - Scheduling Configuration
 - Power Settings
+- App Compatibility Settings
