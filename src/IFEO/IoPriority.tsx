@@ -22,7 +22,11 @@ export default function IoPriorityField({ data }: { data: IfeoDataValue }) {
       onChange={(value) => {
         if (value === null) {
           window.pywebview.api
-            .deleteRegistryValue(data.Path + "\\PerfOptions", "IoPriority")
+            .deleteRegistryValue(
+              "HKLM",
+              data.Path + "\\PerfOptions",
+              "IoPriority"
+            )
             .then(() => {
               setValue(value);
             })
@@ -32,6 +36,7 @@ export default function IoPriorityField({ data }: { data: IfeoDataValue }) {
         } else {
           window.pywebview.api
             .writeRegistryValue(
+              "HKLM",
               data.Path + "\\PerfOptions",
               "IoPriority",
               REGISTRY_DATA_TYPES.REG_DWORD,

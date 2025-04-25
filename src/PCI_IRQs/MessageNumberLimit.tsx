@@ -23,7 +23,11 @@ export default function MessageNumberLimitField({
       onChange={(value) => {
         if (typeof value === "string") {
           window.pywebview.api
-            .deleteRegistryValue(device.Path + MSI_PATH, "MessageNumberLimit")
+            .deleteRegistryValue(
+              "HKLM",
+              device.Path + MSI_PATH,
+              "MessageNumberLimit"
+            )
             .then(() => {
               setValue(undefined);
             })
@@ -33,6 +37,7 @@ export default function MessageNumberLimitField({
         } else {
           window.pywebview.api
             .writeRegistryValue(
+              "HKLM",
               device.Path + MSI_PATH,
               "MessageNumberLimit",
               REGISTRY_DATA_TYPES.REG_DWORD,

@@ -1,6 +1,9 @@
 import { AppShell, Button, Center, NavLink } from "@mantine/core";
 import { useEffect, useState } from "react";
 import packageJson from "../package.json";
+import COMPATIBILITY_OPTIONS, {
+  type CompatibilityOptionsData,
+} from "./COMPATIBILITY_OPTIONS";
 import DISPLAY_INFO, { type DisplayInfo } from "./DISPLAY_INFO";
 import IFEO, { type IfeoData } from "./IFEO";
 import PCI_IRQs, { type SystemInfo } from "./PCI_IRQs";
@@ -26,14 +29,20 @@ declare global {
         ) => Promise<void>;
         setActiveScheme: (schemeGuidStr: string) => Promise<void>;
         writeRegistryValue: (
+          hkeyStr: "HKLM" | "HKCU",
           path: string,
           name: string,
           type: number,
           value: number | string
         ) => Promise<void>;
-        deleteRegistryValue: (path: string, value: string) => Promise<void>;
+        deleteRegistryValue: (
+          hkeyStr: "HKLM" | "HKCU",
+          path: string,
+          value: string
+        ) => Promise<void>;
         deleteRegistryKey: (path: string, key: string) => Promise<void>;
         createRegistryKey: (path: string) => Promise<void>;
+        getCompatibilityOptions: () => Promise<CompatibilityOptionsData>;
       };
     };
   }
@@ -45,6 +54,7 @@ const navItems = [
   { name: "IFEO", component: <IFEO /> },
   { name: "Scheduling", component: <SCHEDULING /> },
   { name: "Power Settings", component: <POWER_SETTINGS /> },
+  { name: "Compatibility Options", component: <COMPATIBILITY_OPTIONS /> },
 ] as const;
 
 export default function App() {

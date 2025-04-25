@@ -22,7 +22,11 @@ export default function PagePriorityField({ data }: { data: IfeoDataValue }) {
       onChange={(value) => {
         if (value === null) {
           window.pywebview.api
-            .deleteRegistryValue(data.Path + "\\PerfOptions", "PagePriority")
+            .deleteRegistryValue(
+              "HKLM",
+              data.Path + "\\PerfOptions",
+              "PagePriority"
+            )
             .then(() => {
               setValue(value);
             })
@@ -32,6 +36,7 @@ export default function PagePriorityField({ data }: { data: IfeoDataValue }) {
         } else {
           window.pywebview.api
             .writeRegistryValue(
+              "HKLM",
               data.Path + "\\PerfOptions",
               "PagePriority",
               REGISTRY_DATA_TYPES.REG_DWORD,

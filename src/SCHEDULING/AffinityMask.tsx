@@ -30,7 +30,7 @@ export default function AffinityMaskField({
         onChange={(value) => {
           if (value.length === 0) {
             window.pywebview.api
-              .deleteRegistryValue(path, name)
+              .deleteRegistryValue("HKLM", path, name)
               .then(() => {
                 setActiveCpus(value.sort((a, b) => parseInt(a) - parseInt(b)));
               })
@@ -46,6 +46,7 @@ export default function AffinityMaskField({
 
             window.pywebview.api
               .writeRegistryValue(
+                "HKLM",
                 path,
                 name,
                 REGISTRY_DATA_TYPES.REG_BINARY,
@@ -85,6 +86,7 @@ export default function AffinityMaskField({
 
             window.pywebview.api
               .writeRegistryValue(
+                "HKLM",
                 path,
                 name,
                 REGISTRY_DATA_TYPES.REG_BINARY,
@@ -105,7 +107,7 @@ export default function AffinityMaskField({
           variant="default"
           onClick={() => {
             window.pywebview.api
-              .deleteRegistryValue(path, name)
+              .deleteRegistryValue("HKLM", path, name)
               .then(() => {
                 setActiveCpus([]);
               })

@@ -31,6 +31,7 @@ export default function AssignmentSetOverrideField({
             if (value.length === 0) {
               window.pywebview.api
                 .deleteRegistryValue(
+                  "HKLM",
                   device.Path + AFFINITY_PATH,
                   "AssignmentSetOverride"
                 )
@@ -51,6 +52,7 @@ export default function AssignmentSetOverrideField({
 
               window.pywebview.api
                 .writeRegistryValue(
+                  "HKLM",
                   device.Path + AFFINITY_PATH,
                   "AssignmentSetOverride",
                   REGISTRY_DATA_TYPES.REG_BINARY,
@@ -92,6 +94,7 @@ export default function AssignmentSetOverrideField({
 
               window.pywebview.api
                 .writeRegistryValue(
+                  "HKLM",
                   device.Path + AFFINITY_PATH,
                   "AssignmentSetOverride",
                   REGISTRY_DATA_TYPES.REG_BINARY,
@@ -113,6 +116,7 @@ export default function AssignmentSetOverrideField({
             onClick={() => {
               window.pywebview.api
                 .deleteRegistryValue(
+                  "HKLM",
                   device.Path + AFFINITY_PATH,
                   "AssignmentSetOverride"
                 )

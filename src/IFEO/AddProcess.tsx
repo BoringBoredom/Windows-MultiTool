@@ -6,7 +6,7 @@ export default function AddNewProcess({
   ifeoData,
   setIfeoData,
 }: {
-  ifeoData: IfeoData | undefined;
+  ifeoData: IfeoData;
   setIfeoData: React.Dispatch<React.SetStateAction<IfeoData | undefined>>;
 }) {
   const [newProcessName, setNewProcessName] = useState<string>("");
@@ -28,7 +28,7 @@ export default function AddNewProcess({
             ? newProcessName
             : newProcessName + ".exe";
 
-          if (ifeoData?.get(normalizedProcessName)) {
+          if (ifeoData.get(normalizedProcessName)) {
             alert(`${normalizedProcessName} already exists.`);
             return;
           }
@@ -67,8 +67,8 @@ export default function AddNewProcess({
       <TextInput
         value={newProcessName}
         placeholder="Enter process name"
-        onChange={(event) => {
-          setNewProcessName(event.currentTarget.value);
+        onChange={(ev) => {
+          setNewProcessName(ev.currentTarget.value);
         }}
       />
     </Group>

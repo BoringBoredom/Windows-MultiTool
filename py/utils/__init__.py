@@ -1,12 +1,13 @@
 from ctypes import Structure, c_ubyte, c_ulong, c_ushort
+from typing import Literal
 from uuid import UUID
 from winreg import (
+    HKEY_CURRENT_USER,
     HKEY_LOCAL_MACHINE,
     KEY_READ,
     KEY_WOW64_64KEY,
     KEY_WRITE,
     REG_BINARY,
-    REG_DWORD,
     CreateKeyEx,
     DeleteKeyEx,
     DeleteValue,
@@ -42,16 +43,22 @@ class GUID(Structure):
         )
 
 
-def write_registry_value(path: str, name: str, type: int, value: int | str):
-    with CreateKeyEx(HKEY_LOCAL_MACHINE, path, 0, KEY_WRITE | KEY_WOW64_64KEY) as key:
+def write_registry_value(
+    hkey_str: Literal["HKLM", "HKCU"], path: str, name: str, type: int, value: int | str
+):
+    hkey = HKEY_LOCAL_MACHINE if hkey_str == "HKLM" else HKEY_CURRENT_USER
+
+    with CreateKeyEx(hkey, path, 0, KEY_WRITE | KEY_WOW64_64KEY) as key:
         if type == REG_BINARY and isinstance(value, str):
             SetValueEx(key, name, 0, type, int(value, 2).to_bytes(8, "little"))
-        elif type == REG_DWORD and isinstance(value, int):
+        else:
             SetValueEx(key, name, 0, type, value)
 
 
-def delete_registry_value(path: str, value: str):
-    with OpenKeyEx(HKEY_LOCAL_MACHINE, path, 0, KEY_WRITE | KEY_WOW64_64KEY) as key:
+def delete_registry_value(hkey_str: Literal["HKLM", "HKCU"], path: str, value: str):
+    hkey = HKEY_LOCAL_MACHINE if hkey_str == "HKLM" else HKEY_CURRENT_USER
+
+    with OpenKeyEx(hkey, path, 0, KEY_WRITE | KEY_WOW64_64KEY) as key:
         DeleteValue(key, value)
 
 

@@ -1,0 +1,11 @@
+.title {
+  text-align: center;
+  font-weight: bold;
+  background-color: var(--mantine-color-dark-5);
+}
+.centerCheckbox :global(.mantine-Checkbox-body) {
+  justify-content: center;
+}
+.addPath {
+  min-width: 85%;
+}

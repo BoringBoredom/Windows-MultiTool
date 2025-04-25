@@ -1,7 +1,7 @@
 from functools import wraps
 from os import path
 from traceback import format_exc
-from typing import Callable, ParamSpec, TypeVar
+from typing import Callable, Literal, ParamSpec, TypeVar
 
 import webview
 
@@ -34,16 +34,25 @@ class Api:
         return get_display_info()
 
     @handle_api_errors
-    def writeRegistryValue(self, path: str, name: str, type: int, value: int | str):
+    def writeRegistryValue(
+        self,
+        hkey_str: Literal["HKLM", "HKCU"],
+        path: str,
+        name: str,
+        type: int,
+        value: int | str,
+    ):
         from py.utils import write_registry_value
 
-        write_registry_value(path, name, type, value)
+        write_registry_value(hkey_str, path, name, type, value)
 
     @handle_api_errors
-    def deleteRegistryValue(self, path: str, value: str):
+    def deleteRegistryValue(
+        self, hkey_str: Literal["HKLM", "HKCU"], path: str, value: str
+    ):
         from py.utils import delete_registry_value
 
-        delete_registry_value(path, value)
+        delete_registry_value(hkey_str, path, value)
 
     @handle_api_errors
     def deleteRegistryKey(self, path: str, key: str):
@@ -101,6 +110,12 @@ class Api:
         from py.POWER_SETTINGS import set_active_scheme
 
         set_active_scheme(scheme_guid_str)
+
+    @handle_api_errors
+    def getCompatibilityOptions(self):
+        from py.COMPATIBILITY_OPTIONS import get_compatibility_options
+
+        return get_compatibility_options()
 
 
 def on_shown(window):  # type: ignore

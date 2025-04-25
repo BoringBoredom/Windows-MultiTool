@@ -23,6 +23,7 @@ export default function CpuPriorityField({ data }: { data: IfeoDataValue }) {
         if (value === null) {
           window.pywebview.api
             .deleteRegistryValue(
+              "HKLM",
               data.Path + "\\PerfOptions",
               "CpuPriorityClass"
             )
@@ -35,6 +36,7 @@ export default function CpuPriorityField({ data }: { data: IfeoDataValue }) {
         } else {
           window.pywebview.api
             .writeRegistryValue(
+              "HKLM",
               data.Path + "\\PerfOptions",
               "CpuPriorityClass",
               REGISTRY_DATA_TYPES.REG_DWORD,

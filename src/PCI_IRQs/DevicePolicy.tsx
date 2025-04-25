@@ -34,7 +34,11 @@ export default function DevicePolicyField({
       onChange={(value) => {
         if (value === null) {
           window.pywebview.api
-            .deleteRegistryValue(device.Path + AFFINITY_PATH, "DevicePolicy")
+            .deleteRegistryValue(
+              "HKLM",
+              device.Path + AFFINITY_PATH,
+              "DevicePolicy"
+            )
             .then(() => {
               setValue(value);
             })
@@ -44,6 +48,7 @@ export default function DevicePolicyField({
         } else {
           window.pywebview.api
             .writeRegistryValue(
+              "HKLM",
               device.Path + AFFINITY_PATH,
               "DevicePolicy",
               REGISTRY_DATA_TYPES.REG_DWORD,

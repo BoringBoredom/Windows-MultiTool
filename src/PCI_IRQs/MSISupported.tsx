@@ -23,7 +23,7 @@ export default function MSISupportedField({
       onChange={(value) => {
         if (value === null) {
           window.pywebview.api
-            .deleteRegistryValue(device.Path + MSI_PATH, "MSISupported")
+            .deleteRegistryValue("HKLM", device.Path + MSI_PATH, "MSISupported")
             .then(() => {
               setValue(value);
             })
@@ -33,6 +33,7 @@ export default function MSISupportedField({
         } else {
           window.pywebview.api
             .writeRegistryValue(
+              "HKLM",
               device.Path + MSI_PATH,
               "MSISupported",
               REGISTRY_DATA_TYPES.REG_DWORD,
