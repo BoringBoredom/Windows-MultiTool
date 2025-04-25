@@ -7,7 +7,7 @@
 - ### PCI Interrupt Management
   ![](images/PCI_IRQs.png)
 - ### Display Information
-  ![](images/Display_info.png)
+  ![](images/Display_Info.png)
 - ### IFEO Priority Management
   ![](images/IFEO.png)
 - ### Scheduling Configuration
