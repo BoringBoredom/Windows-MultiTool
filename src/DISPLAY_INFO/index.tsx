@@ -162,7 +162,7 @@ export default function DISPLAY_INFO() {
           <Table.Td>Horizontal Frequency</Table.Td>
           {displayInfo.displays.map((display) => (
             <Table.Td key={display.monitorDevicePath}>
-              {display.horizontalFrequency.toString() + " Hz"}
+              {display.horizontalFrequency.toString() + " kHz"}
             </Table.Td>
           ))}
         </Table.Tr>
@@ -180,7 +180,7 @@ export default function DISPLAY_INFO() {
           <Table.Td>Pixel Rate</Table.Td>
           {displayInfo.displays.map((display) => (
             <Table.Td key={display.monitorDevicePath}>
-              {display.pixelRate.toString() + " Hz"}
+              {display.pixelRate.toString() + " MHz"}
             </Table.Td>
           ))}
         </Table.Tr>

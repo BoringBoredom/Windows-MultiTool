@@ -396,7 +396,7 @@ class Display(TypedDict):
     refreshRate: float
     horizontalFrequency: float
     resolution: str
-    pixelRate: int
+    pixelRate: float
     scaling: int
     pixelFormat: int
     mpo: MPOCapabilities
@@ -500,10 +500,13 @@ def get_display_info():
         ):
             horizontal_frequencies[mode.id] = (
                 mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.hSyncFreq.Numerator
-                / mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.hSyncFreq.Denominator
+                / (
+                    mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.hSyncFreq.Denominator
+                    * 1000
+                )
             )
             pixel_rates[mode.id] = (
-                mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.pixelRate
+                mode.DUMMYUNIONNAME.targetMode.targetVideoSignalInfo.pixelRate / 1000000
             )
 
     for path in path_array:
