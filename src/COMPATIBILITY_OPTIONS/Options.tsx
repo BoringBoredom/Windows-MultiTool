@@ -1,8 +1,7 @@
 import { Checkbox, Select, Table } from "@mantine/core";
 import { useState } from "react";
-import type { CompatibilityOptions } from ".";
+import { COMPAT_PATH, type CompatibilityOptions } from ".";
 import { REGISTRY_DATA_TYPES } from "../constants";
-import { COMPAT_PATH } from "./Table";
 
 export default function Options({
   name,

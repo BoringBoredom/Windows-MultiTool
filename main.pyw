@@ -3,7 +3,7 @@ from os import path
 from traceback import format_exc
 from typing import Callable, Literal, ParamSpec, TypeVar
 
-import webview
+from webview import SAVE_DIALOG, create_window, start
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -117,18 +117,53 @@ class Api:
 
         return get_compatibility_options()
 
+    @handle_api_errors
+    def saveFile(self, file_name: str, file_types: tuple[str], content: str):
+        path = window.create_file_dialog(
+            SAVE_DIALOG,
+            directory="/",
+            save_filename=file_name,
+            file_types=file_types,
+        )
 
-def on_shown(window):  # type: ignore
-    window.maximize()  # type: ignore
+        if path is None:
+            return
+
+        with open(str(path), "w", encoding="utf-8") as file:
+            file.write(content)
+
+    @handle_api_errors
+    def exportPowerScheme(self, guid: str, file_name: str, file_types: tuple[str]):
+        path = window.create_file_dialog(
+            SAVE_DIALOG,
+            directory="/",
+            save_filename=file_name,
+            file_types=file_types,
+        )
+
+        if path is None:
+            return
+
+        from subprocess import CREATE_NO_WINDOW, run
+
+        run(
+            ["powercfg", "/export", str(path), guid],
+            check=True,
+            creationflags=CREATE_NO_WINDOW,
+        )
+
+
+def on_shown():
+    window.maximize()
 
 
 if __name__ == "__main__":
     isDevEnv = not path.exists(path.join(path.dirname(__file__), "gui/index.html"))
     entry_point = "http://localhost:5173/" if isDevEnv else "gui/index.html"
 
-    window = webview.create_window(
+    window = create_window(
         "Windows MultiTool", entry_point, js_api=Api(), text_select=True
     )
     window.events.shown += on_shown
 
-    webview.start(ssl=True, debug=isDevEnv)
+    start(ssl=True, debug=isDevEnv)

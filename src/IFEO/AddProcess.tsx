@@ -1,6 +1,8 @@
-import { Group, Button, TextInput } from "@mantine/core";
+import { ActionIcon, Group, TextInput } from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
-import type { IfeoData } from ".";
+import { IFEO_PATH, type IfeoData } from ".";
+import s from "./index.module.css";
 
 export default function AddNewProcess({
   ifeoData,
@@ -9,31 +11,30 @@ export default function AddNewProcess({
   ifeoData: IfeoData;
   setIfeoData: React.Dispatch<React.SetStateAction<IfeoData | undefined>>;
 }) {
-  const [newProcessName, setNewProcessName] = useState<string>("");
+  const [name, setName] = useState<string>("");
 
   return (
     <Group>
-      <Button
-        size="xs"
+      <ActionIcon
         variant="filled"
         color="green"
         onClick={() => {
-          if (!newProcessName.trim()) {
+          if (!name.trim()) {
             alert("Enter a process name.");
             return;
           }
 
-          const lowerCaseProcessName = newProcessName.toLowerCase();
-          const normalizedProcessName = lowerCaseProcessName.endsWith(".exe")
-            ? newProcessName
-            : newProcessName + ".exe";
+          const lowerCaseName = name.toLowerCase();
+          const normalizedName = lowerCaseName.endsWith(".exe")
+            ? name
+            : name + ".exe";
 
-          if (ifeoData.get(normalizedProcessName)) {
-            alert(`${normalizedProcessName} already exists.`);
+          if (ifeoData.get(normalizedName)) {
+            alert(`${normalizedName} already exists.`);
             return;
           }
 
-          const path = `SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\${normalizedProcessName}`;
+          const path = `${IFEO_PATH}\\${normalizedName}`;
 
           window.pywebview.api
             .createRegistryKey(path + "\\PerfOptions")
@@ -44,7 +45,7 @@ export default function AddNewProcess({
                 }
 
                 const newData = new Map(prev);
-                newData.set(normalizedProcessName, {
+                newData.set(normalizedName, {
                   Path: path,
                   CpuPriorityClass: null,
                   IoPriority: null,
@@ -54,21 +55,22 @@ export default function AddNewProcess({
                 return newData;
               });
 
-              setNewProcessName("");
+              setName("");
             })
             .catch((error: unknown) => {
               alert(error instanceof Error ? error.toString() : error);
             });
         }}
       >
-        +
-      </Button>
+        <IconPlus />
+      </ActionIcon>
 
       <TextInput
-        value={newProcessName}
+        value={name}
+        className={s.addProcess}
         placeholder="Enter process name"
         onChange={(ev) => {
-          setNewProcessName(ev.currentTarget.value);
+          setName(ev.currentTarget.value);
         }}
       />
     </Group>

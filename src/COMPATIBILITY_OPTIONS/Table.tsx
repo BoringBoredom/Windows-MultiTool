@@ -1,11 +1,9 @@
-import { Button, Group, Table } from "@mantine/core";
-import type { CompatibilityOptionsData } from ".";
+import { ActionIcon, Group, Table } from "@mantine/core";
+import { IconMinus } from "@tabler/icons-react";
+import { COMPAT_PATH, type CompatibilityOptionsData } from ".";
 import AddPath from "./AddPath";
 import s from "./index.module.css";
 import Options from "./Options";
-
-export const COMPAT_PATH =
-  "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers";
 
 export default function TableComponent({
   compatibilityOptionsData,
@@ -32,8 +30,7 @@ export default function TableComponent({
           <Table.Tr key={name}>
             <Table.Td>
               <Group>
-                <Button
-                  size="xs"
+                <ActionIcon
                   variant="filled"
                   color="red"
                   onClick={() => {
@@ -59,8 +56,8 @@ export default function TableComponent({
                       });
                   }}
                 >
-                  -
-                </Button>
+                  <IconMinus />
+                </ActionIcon>
                 {name}
               </Group>
             </Table.Td>

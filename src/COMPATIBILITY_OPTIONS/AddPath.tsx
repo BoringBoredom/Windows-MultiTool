@@ -1,8 +1,12 @@
-import { Button, Group, TextInput } from "@mantine/core";
+import { ActionIcon, Group, TextInput } from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
-import type { CompatibilityOptions, CompatibilityOptionsData } from ".";
+import {
+  COMPAT_PATH,
+  type CompatibilityOptions,
+  type CompatibilityOptionsData,
+} from ".";
 import { REGISTRY_DATA_TYPES } from "../constants";
-import { COMPAT_PATH } from "./Table";
 import s from "./index.module.css";
 
 export default function AddPath({
@@ -20,8 +24,7 @@ export default function AddPath({
 
   return (
     <Group>
-      <Button
-        size="xs"
+      <ActionIcon
         variant="filled"
         color="green"
         onClick={() => {
@@ -66,8 +69,8 @@ export default function AddPath({
             });
         }}
       >
-        +
-      </Button>
+        <IconPlus />
+      </ActionIcon>
 
       <TextInput
         value={name}

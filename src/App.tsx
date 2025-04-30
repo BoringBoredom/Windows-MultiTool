@@ -1,4 +1,5 @@
 import { AppShell, Button, Center, NavLink } from "@mantine/core";
+import { IconDownload } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import packageJson from "../package.json";
 import COMPATIBILITY_OPTIONS, {
@@ -43,6 +44,16 @@ declare global {
         deleteRegistryKey: (path: string, key: string) => Promise<void>;
         createRegistryKey: (path: string) => Promise<void>;
         getCompatibilityOptions: () => Promise<CompatibilityOptionsData>;
+        saveFile: (
+          fileName: string,
+          fileTypes: string[],
+          content: string
+        ) => Promise<void>;
+        exportPowerScheme: (
+          guid: string,
+          fileName: string,
+          fileTypes: string[]
+        ) => Promise<void>;
       };
     };
   }
@@ -117,6 +128,7 @@ export default function App() {
               <Center h="100vh">
                 <Button
                   variant="filled"
+                  leftSection={<IconDownload />}
                   color="green"
                   size="xl"
                   onClick={() => {

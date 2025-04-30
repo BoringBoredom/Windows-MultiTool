@@ -61,7 +61,7 @@ export default function PCI_IRQs() {
   }
 
   return (
-    <Table withColumnBorders>
+    <Table withColumnBorders stickyHeader>
       <Table.Thead>
         <Table.Tr>
           <Table.Th>Device</Table.Th>

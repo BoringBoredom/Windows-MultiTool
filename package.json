@@ -1,7 +1,7 @@
 {
   "name": "windows-multitool",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "repo": "BoringBoredom/Windows-MultiTool",
   "scripts": {
@@ -17,6 +17,7 @@
   "dependencies": {
     "@mantine/core": "^7.17.3",
     "@mantine/hooks": "^7.17.3",
+    "@tabler/icons-react": "3.17.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

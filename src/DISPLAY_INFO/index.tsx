@@ -109,7 +109,7 @@ export default function DISPLAY_INFO() {
   }
 
   return (
-    <Table withColumnBorders>
+    <Table withColumnBorders stickyHeader>
       <Table.Thead>
         <Table.Tr>
           <Table.Th></Table.Th>
