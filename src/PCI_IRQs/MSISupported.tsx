@@ -1,7 +1,7 @@
 import { Select } from "@mantine/core";
 import { useState } from "react";
-import type { SystemInfo } from ".";
-import { MSI_PATH, REGISTRY_DATA_TYPES } from "../constants";
+import { MSI_PATH, type SystemInfo } from ".";
+import { REGISTRY_DATA_TYPES } from "../shared";
 
 export default function MSISupportedField({
   device,

@@ -1,8 +1,8 @@
 import { Button, Chip, Group, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import type { SystemInfo } from ".";
-import { AFFINITY_PATH, REGISTRY_DATA_TYPES } from "../constants";
+import { AFFINITY_PATH, type SystemInfo } from ".";
+import { REGISTRY_DATA_TYPES } from "../shared";
 
 export default function AssignmentSetOverrideField({
   device,

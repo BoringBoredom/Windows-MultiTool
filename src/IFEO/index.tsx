@@ -2,6 +2,7 @@ import { ActionIcon, Group, Menu, Table } from "@mantine/core";
 import { IconChevronDown, IconMinus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import s from "../App.module.css";
+import { formatRegValue } from "../shared";
 import AddNewProcess from "./AddProcess";
 import CpuPriorityField from "./CpuPriority";
 import IoPriorityField from "./IoPriority";
@@ -18,14 +19,6 @@ export type IfeoData = Map<string, IfeoDataValue>;
 
 export const IFEO_PATH =
   "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options";
-
-function formatRegValue(name: string, value: number | null): string {
-  if (value !== null) {
-    return `"${name}"=dword:${value.toString(16).padStart(8, "0")}\n`;
-  } else {
-    return `"${name}"=-\n`;
-  }
-}
 
 function getExportData(ifeoData: IfeoData, isReg: boolean) {
   let content = "";

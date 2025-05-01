@@ -6,7 +6,7 @@ import {
   type CompatibilityOptions,
   type CompatibilityOptionsData,
 } from ".";
-import { REGISTRY_DATA_TYPES } from "../constants";
+import { REGISTRY_DATA_TYPES } from "../shared";
 import s from "./index.module.css";
 
 export default function AddPath({

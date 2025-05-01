@@ -13,8 +13,9 @@ from winreg import (
 CompatibilityOptions = list[str | None]
 HiveData = dict[str, CompatibilityOptions]
 
-HKLM_PATH: Final = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
-HKCU_PATH: Final = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
+COMPAT_PATH: Final = (
+    r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
+)
 
 options_map: list[set[str]] = [
     {"~"},
@@ -40,10 +41,10 @@ options_map: list[set[str]] = [
 ]
 
 
-def read_hive(hive: int, path: str):
+def read_hive(hive: int):
     entries: HiveData = {}
 
-    with OpenKeyEx(hive, path, 0, KEY_READ | KEY_WOW64_64KEY) as key:
+    with OpenKeyEx(hive, COMPAT_PATH, 0, KEY_READ | KEY_WOW64_64KEY) as key:
         for i in range(QueryInfoKey(key)[1]):
             name, value, type = EnumValue(key, i)
 
@@ -64,6 +65,6 @@ def read_hive(hive: int, path: str):
 
 def get_compatibility_options():
     return {
-        "HKLM": read_hive(HKEY_LOCAL_MACHINE, HKLM_PATH),
-        "HKCU": read_hive(HKEY_CURRENT_USER, HKCU_PATH),
+        "HKLM": read_hive(HKEY_LOCAL_MACHINE),
+        "HKCU": read_hive(HKEY_CURRENT_USER),
     }

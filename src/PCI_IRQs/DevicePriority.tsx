@@ -1,7 +1,7 @@
 import { Select } from "@mantine/core";
 import { useState } from "react";
-import type { SystemInfo } from ".";
-import { AFFINITY_PATH, REGISTRY_DATA_TYPES } from "../constants";
+import { AFFINITY_PATH, type SystemInfo } from ".";
+import { REGISTRY_DATA_TYPES } from "../shared";
 
 export default function DevicePriorityField({
   device,

@@ -1,6 +1,6 @@
 import { Button, Chip, Group } from "@mantine/core";
 import { useState } from "react";
-import { REGISTRY_DATA_TYPES } from "../constants";
+import { REGISTRY_DATA_TYPES } from "../shared";
 
 export default function AffinityMaskField({
   cpus,

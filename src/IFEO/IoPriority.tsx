@@ -1,7 +1,7 @@
 import { Select } from "@mantine/core";
 import { useState } from "react";
 import type { IfeoDataValue } from ".";
-import { REGISTRY_DATA_TYPES } from "../constants";
+import { REGISTRY_DATA_TYPES } from "../shared";
 
 export default function IoPriorityField({ data }: { data: IfeoDataValue }) {
   const [value, setValue] = useState<string | null>(

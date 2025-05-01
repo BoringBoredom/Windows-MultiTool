@@ -457,7 +457,6 @@ def get_display_info():
             byref(num_path_array_elements),
             byref(num_mode_info_array_elements),
         )
-
         if result != 0:
             raise WinError(result)
 
