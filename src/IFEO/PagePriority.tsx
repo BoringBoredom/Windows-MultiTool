@@ -10,6 +10,7 @@ export default function PagePriorityField({ data }: { data: IfeoDataValue }) {
 
   return (
     <Select
+      size="xs"
       clearable
       value={value}
       data={[

@@ -16,6 +16,7 @@ export default function AddNewProcess({
   return (
     <Group>
       <ActionIcon
+        size="xs"
         variant="filled"
         color="green"
         onClick={() => {
@@ -66,6 +67,7 @@ export default function AddNewProcess({
       </ActionIcon>
 
       <TextInput
+        size="xs"
         value={name}
         className={s.addProcess}
         placeholder="Enter process name"

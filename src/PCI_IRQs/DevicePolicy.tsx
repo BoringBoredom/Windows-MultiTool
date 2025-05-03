@@ -14,6 +14,7 @@ export default function DevicePolicyField({
 
   return (
     <Select
+      size="xs"
       clearable
       value={value}
       data={[

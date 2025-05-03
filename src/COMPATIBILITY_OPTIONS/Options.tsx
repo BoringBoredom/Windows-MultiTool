@@ -122,6 +122,7 @@ export default function Options({
 
       <Table.Td>
         <Select
+          size="xs"
           clearable
           value={data[4]}
           data={["PERPROCESSSYSTEMDPIFORCEOFF", "PERPROCESSSYSTEMDPIFORCEON"]}
@@ -149,6 +150,7 @@ export default function Options({
 
       <Table.Td>
         <Select
+          size="xs"
           clearable
           value={data[5]}
           data={["HIGHDPIAWARE", "DPIUNAWARE", "GDIDPISCALING DPIUNAWARE"]}
@@ -253,6 +255,7 @@ export default function Options({
 
       <Table.Td>
         <Select
+          size="xs"
           clearable
           value={data[9]}
           data={[

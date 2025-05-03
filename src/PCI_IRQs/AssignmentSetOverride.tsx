@@ -80,7 +80,7 @@ export default function AssignmentSetOverrideField({
 
         <br />
 
-        <Group gap={"xs"}>
+        <Group gap="xs">
           <Button
             variant="default"
             onClick={() => {
@@ -133,7 +133,7 @@ export default function AssignmentSetOverrideField({
         </Group>
       </Modal>
 
-      <Button variant="default" fullWidth onClick={open}>
+      <Button size="xs" variant="default" fullWidth onClick={open}>
         {activeCpus.join(", ")}
       </Button>
     </>

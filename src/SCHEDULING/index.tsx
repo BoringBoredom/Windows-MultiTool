@@ -115,7 +115,7 @@ export default function SCHEDULING() {
       </div>
 
       <Center h="100vh">
-        <Stack gap={"xl"}>
+        <Stack gap="xl">
           <AffinityMaskField
             cpus={schedulingInfo.cpu.cpus}
             path={KERNEL_PATH}

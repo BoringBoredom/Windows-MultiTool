@@ -72,7 +72,7 @@ export default function AffinityMaskField({
 
       <br />
 
-      <Group gap={"xs"}>
+      <Group gap="xs">
         <Button
           variant="default"
           onClick={() => {

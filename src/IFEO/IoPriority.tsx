@@ -10,6 +10,7 @@ export default function IoPriorityField({ data }: { data: IfeoDataValue }) {
 
   return (
     <Select
+      size="xs"
       clearable
       value={value}
       data={[

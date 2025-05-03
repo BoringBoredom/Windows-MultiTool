@@ -18,6 +18,7 @@ export default function SelectOption({
 
   return (
     <NativeSelect
+      size="xs"
       label={type.toUpperCase()}
       value={value}
       data={setting.options!.map((option) => ({

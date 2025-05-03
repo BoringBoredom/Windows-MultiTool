@@ -25,6 +25,7 @@ export default function AddPath({
   return (
     <Group>
       <ActionIcon
+        size="xs"
         variant="filled"
         color="green"
         onClick={() => {
@@ -73,6 +74,7 @@ export default function AddPath({
       </ActionIcon>
 
       <TextInput
+        size="xs"
         value={name}
         className={s.addPath}
         placeholder="Enter process path"

@@ -31,6 +31,7 @@ export default function TableComponent({
             <Table.Td>
               <Group>
                 <ActionIcon
+                  size="xs"
                   variant="filled"
                   color="red"
                   onClick={() => {

@@ -14,6 +14,7 @@ export default function MessageNumberLimitField({
 
   return (
     <NumberInput
+      size="xs"
       value={value}
       allowDecimal={false}
       allowNegative={false}

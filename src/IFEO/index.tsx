@@ -158,6 +158,7 @@ export default function IFEO() {
                 <Table.Td>
                   <Group>
                     <ActionIcon
+                      size="xs"
                       variant="filled"
                       color="red"
                       onClick={() => {

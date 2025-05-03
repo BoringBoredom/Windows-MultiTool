@@ -18,6 +18,7 @@ export default function NumberOption({
 
   return (
     <NumberInput
+      size="xs"
       label={type.toUpperCase()}
       value={value}
       onChange={(value) => {
