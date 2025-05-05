@@ -196,7 +196,7 @@ export default function PCI_IRQs() {
           <Table.Tr>
             <Table.Th>Device</Table.Th>
             <Table.Th>IRQ Priority</Table.Th>
-            <Table.Th>IRQ Policy</Table.Th>
+            <Table.Th className={s.policyWidth}>IRQ Policy</Table.Th>
             <Table.Th>CPUs</Table.Th>
             <Table.Th>MSI</Table.Th>
             <Table.Th>Message Limit</Table.Th>

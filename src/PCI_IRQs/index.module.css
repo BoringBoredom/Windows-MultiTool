@@ -2,3 +2,6 @@
   font-size: 0.7rem;
   color: #676767;
 }
+.policyWidth {
+  min-width: 18rem;
+}
