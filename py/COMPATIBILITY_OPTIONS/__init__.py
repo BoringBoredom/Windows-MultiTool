@@ -44,21 +44,24 @@ options_map: list[set[str]] = [
 def read_hive(hive: int):
     entries: HiveData = {}
 
-    with OpenKeyEx(hive, COMPAT_PATH, 0, KEY_READ | KEY_WOW64_64KEY) as key:
-        for i in range(QueryInfoKey(key)[1]):
-            name, value, type = EnumValue(key, i)
+    try:
+        with OpenKeyEx(hive, COMPAT_PATH, 0, KEY_READ | KEY_WOW64_64KEY) as key:
+            for i in range(QueryInfoKey(key)[1]):
+                name, value, type = EnumValue(key, i)
 
-            if isinstance(value, str) and type == REG_SZ:
-                flags = value.split(" ")
-                parsed_options: CompatibilityOptions = [None] * len(options_map)
+                if isinstance(value, str) and type == REG_SZ:
+                    flags = value.split(" ")
+                    parsed_options: CompatibilityOptions = [None] * len(options_map)
 
-                for flag in flags:
-                    for index, valid_options in enumerate(options_map):
-                        if flag in valid_options:
-                            parsed_options[index] = flag
-                            break
+                    for flag in flags:
+                        for index, valid_options in enumerate(options_map):
+                            if flag in valid_options:
+                                parsed_options[index] = flag
+                                break
 
-                entries[name] = parsed_options
+                    entries[name] = parsed_options
+    except FileNotFoundError:
+        pass
 
     return entries
 

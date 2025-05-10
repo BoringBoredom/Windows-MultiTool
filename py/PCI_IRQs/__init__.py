@@ -144,11 +144,9 @@ def get_additional_info(instance_id: str):
         "MaximumMessageNumberLimit": None,
     }
 
-    device_instance_id = c_wchar_p(instance_id)
-
     dev_info_handle = SetupDiGetClassDevsW(
         None,
-        device_instance_id,
+        c_wchar_p(instance_id),
         None,
         DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE,
     )
