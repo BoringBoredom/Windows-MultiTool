@@ -441,13 +441,13 @@ def get_settings(
                 if result != 0:
                     raise WinError(result)
 
-                description_buffer = create_unicode_buffer(buffer_size.value)
+                option_description_buffer = create_unicode_buffer(buffer_size.value)
                 result = PowerReadPossibleDescription(
                     None,
                     byref(subgroup_guid) if subgroup_guid else None,
                     byref(setting_guid),
                     option_index,
-                    description_buffer,
+                    option_description_buffer,
                     byref(buffer_size),
                 )
                 if result != 0:
@@ -457,7 +457,7 @@ def get_settings(
                     {
                         "index": option_index,
                         "name": option_buffer.value,
-                        "description": description_buffer.value,
+                        "description": option_description_buffer.value,
                     }
                 )
 
