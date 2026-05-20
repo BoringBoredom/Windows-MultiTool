@@ -1,6 +1,6 @@
 import { ActionIcon, Menu, Table, Tabs } from "@mantine/core";
 import { IconChevronDown } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import s2 from "../App.module.css";
 import s from "./index.module.css";
 import PossibleValues from "./PossibleValues";
@@ -48,6 +48,7 @@ export interface Setting {
 
 export default function POWER_SETTINGS() {
   const [powerSettings, setPowerSettings] = useState<PowerSettings>();
+  const activeSchemeIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     window.pywebview.api
@@ -66,8 +67,8 @@ export default function POWER_SETTINGS() {
 
   const { powerSchemes, activeSchemeGuid } = powerSettings;
 
-  const activeSchemeIndex = powerSchemes.findIndex(
-    (scheme) => scheme.guid === activeSchemeGuid
+  const initialSchemeIndex = powerSchemes.findIndex(
+    (scheme) => scheme.guid === activeSchemeGuid,
   );
 
   return (
@@ -85,13 +86,16 @@ export default function POWER_SETTINGS() {
 
             <Menu.Item
               onClick={() => {
-                const currentScheme = powerSchemes[activeSchemeIndex];
+                const currentScheme =
+                  powerSchemes[
+                    activeSchemeIndexRef.current ?? initialSchemeIndex
+                  ];
 
                 window.pywebview.api
                   .exportPowerScheme(
                     currentScheme.guid,
                     `${currentScheme.name}.pow`,
-                    ["Power Plan (*.pow)"]
+                    ["Power Plan (*.pow)"],
                   )
                   .catch((error: unknown) => {
                     alert(error instanceof Error ? error.toString() : error);
@@ -104,13 +108,15 @@ export default function POWER_SETTINGS() {
         </Menu>
       </div>
 
-      <Tabs variant="pills" defaultValue={activeSchemeIndex.toString()}>
+      <Tabs variant="pills" defaultValue={initialSchemeIndex.toString()}>
         <Tabs.List className={s.powerPlanSelection}>
           {powerSchemes.map((powerScheme, index) => (
             <Tabs.Tab
               value={index.toString()}
               key={powerScheme.guid}
               onClick={() => {
+                activeSchemeIndexRef.current = index;
+
                 window.pywebview.api
                   .setActiveScheme(powerScheme.guid)
                   .catch((error: unknown) => {
@@ -135,7 +141,7 @@ export default function POWER_SETTINGS() {
           </Table.Thead>
 
           <Table.Tbody>
-            {powerSchemes[activeSchemeIndex].settings.map(
+            {powerSchemes[initialSchemeIndex].settings.map(
               (setting, settingIndex) => (
                 <Table.Tr key={settingIndex.toString() + setting.guid}>
                   <Table.Td>{setting.subgroup.name}</Table.Td>
@@ -163,7 +169,7 @@ export default function POWER_SETTINGS() {
 
                   <Table.Td>{setting.description}</Table.Td>
                 </Table.Tr>
-              )
+              ),
             )}
           </Table.Tbody>
         </Table>
