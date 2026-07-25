@@ -10,7 +10,7 @@ from ctypes import (
     windll,
 )
 from ctypes.wintypes import DWORD, HKEY, HLOCAL
-from typing import Final, TypedDict, cast
+from typing import Callable, Final, TypedDict, cast
 
 from py.utils import GUID
 
@@ -232,38 +232,36 @@ def write_value_index(
     set_active_scheme(scheme_guid_str)
 
 
-def get_friendly_name(
-    scheme_guid: GUID | None = None,
-    subgroup_guid: GUID | None = None,
-    setting_guid: GUID | None = None,
-):
+def read_optional_string(reader: Callable[..., int], *args: object) -> str:
     buffer_size = c_ulong()
-    result = PowerReadFriendlyName(
-        None,
-        byref(scheme_guid) if scheme_guid else None,
-        byref(subgroup_guid) if subgroup_guid else None,
-        byref(setting_guid) if setting_guid else None,
-        None,
-        byref(buffer_size),
-    )
+    result = reader(*args, None, byref(buffer_size))
     if result == ERROR_FILE_NOT_FOUND:
         return ""
     if result != 0:
         raise WinError(result)
 
     buffer = create_unicode_buffer(buffer_size.value)
-    result = PowerReadFriendlyName(
-        None,
-        byref(scheme_guid) if scheme_guid else None,
-        byref(subgroup_guid) if subgroup_guid else None,
-        byref(setting_guid) if setting_guid else None,
-        buffer,
-        byref(buffer_size),
-    )
+    result = reader(*args, buffer, byref(buffer_size))
+    if result == ERROR_FILE_NOT_FOUND:
+        return ""
     if result != 0:
         raise WinError(result)
 
     return cast(str, buffer.value)
+
+
+def get_friendly_name(
+    scheme_guid: GUID | None = None,
+    subgroup_guid: GUID | None = None,
+    setting_guid: GUID | None = None,
+):
+    return read_optional_string(
+        PowerReadFriendlyName,
+        None,
+        byref(scheme_guid) if scheme_guid else None,
+        byref(subgroup_guid) if subgroup_guid else None,
+        byref(setting_guid) if setting_guid else None,
+    )
 
 
 def get_settings(
@@ -293,29 +291,13 @@ def get_settings(
         if result != 0:
             raise WinError(result)
 
-        buffer_size = c_ulong()
-        result = PowerReadDescription(
+        description = read_optional_string(
+            PowerReadDescription,
             None,
             byref(scheme_guid),
             byref(subgroup_guid) if subgroup_guid else None,
             byref(setting_guid),
-            None,
-            byref(buffer_size),
         )
-        if result != 0:
-            raise WinError(result)
-
-        description_buffer = create_unicode_buffer(buffer_size.value)
-        result = PowerReadDescription(
-            None,
-            byref(scheme_guid),
-            byref(subgroup_guid) if subgroup_guid else None,
-            byref(setting_guid),
-            description_buffer,
-            byref(buffer_size),
-        )
-        if result != 0:
-            raise WinError(result)
 
         ac_value_index = c_ulong()
         result = PowerReadACValueIndex(
@@ -370,33 +352,18 @@ def get_settings(
             if result != 0:
                 raise WinError(result)
 
-            buffer_size = c_ulong()
-            result = PowerReadValueUnitsSpecifier(
+            unit = read_optional_string(
+                PowerReadValueUnitsSpecifier,
                 None,
                 byref(subgroup_guid) if subgroup_guid else None,
                 byref(setting_guid),
-                None,
-                byref(buffer_size),
             )
-            if result != 0:
-                raise WinError(result)
-
-            unit_buffer = create_unicode_buffer(buffer_size.value)
-            result = PowerReadValueUnitsSpecifier(
-                None,
-                byref(subgroup_guid) if subgroup_guid else None,
-                byref(setting_guid),
-                unit_buffer,
-                byref(buffer_size),
-            )
-            if result != 0:
-                raise WinError(result)
 
             setting_range = {
                 "min": min_value.value,
                 "max": max_value.value,
                 "increment": increment_value.value,
-                "unit": unit_buffer.value,
+                "unit": unit,
             }
         else:
             setting_options = []
@@ -429,35 +396,19 @@ def get_settings(
                 if result != 0:
                     raise WinError(result)
 
-                buffer_size = c_ulong()
-                result = PowerReadPossibleDescription(
+                option_description = read_optional_string(
+                    PowerReadPossibleDescription,
                     None,
                     byref(subgroup_guid) if subgroup_guid else None,
                     byref(setting_guid),
                     option_index,
-                    None,
-                    byref(buffer_size),
                 )
-                if result != 0:
-                    raise WinError(result)
-
-                option_description_buffer = create_unicode_buffer(buffer_size.value)
-                result = PowerReadPossibleDescription(
-                    None,
-                    byref(subgroup_guid) if subgroup_guid else None,
-                    byref(setting_guid),
-                    option_index,
-                    option_description_buffer,
-                    byref(buffer_size),
-                )
-                if result != 0:
-                    raise WinError(result)
 
                 setting_options.append(
                     {
                         "index": option_index,
                         "name": option_buffer.value,
-                        "description": option_description_buffer.value,
+                        "description": option_description,
                     }
                 )
 
@@ -473,7 +424,7 @@ def get_settings(
                 subgroup_guid=subgroup_guid,
                 setting_guid=setting_guid,
             ),
-            "description": description_buffer.value,
+            "description": description,
             "subgroup": current_subgroup,
             "ac": ac_value_index.value,
             "dc": dc_value_index.value,
