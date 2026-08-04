@@ -39,20 +39,16 @@ jobs:
         shell: cmd
         run: npm run build-binary
 
-      - name: Get version from package.json
-        id: version
-        shell: bash
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           path: dist\WindowsMultiTool.exe
+          archive: false
 
       - name: Create release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.version.outputs.VERSION }}
-          name: ${{ steps.version.outputs.VERSION }}
-          artifacts: dist\WindowsMultiTool.exe
-          generateReleaseNotes: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content -Raw package.json | ConvertFrom-Json).version
+          gh release create $version "dist\WindowsMultiTool.exe" --title $version --generate-notes --target $env:GITHUB_SHA
