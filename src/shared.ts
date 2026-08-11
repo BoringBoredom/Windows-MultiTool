@@ -31,7 +31,7 @@ export function formatBitMask(value: number | null, isReg: boolean) {
     }
 
     return isReg
-      ? `"hex:${bytes.reverse().join(",")}"`
+      ? `hex:${bytes.reverse().join(",")}`
       : bytes.reverse().join("");
   } else {
     return "-";

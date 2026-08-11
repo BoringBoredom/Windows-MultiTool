@@ -129,7 +129,8 @@ class Api:
         if path is None:
             return
 
-        with open(str(path), "w", encoding="utf-8") as file:
+        encoding = "utf-16" if str(path).casefold().endswith(".reg") else "utf-8"
+        with open(str(path), "w", encoding=encoding) as file:
             file.write(content)
 
     @handle_api_errors
