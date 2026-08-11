@@ -207,10 +207,12 @@ export default function PCI_IRQs() {
 
         <Table.Tbody>
           {systemInfo.devices.map((device) => (
-            <Table.Tr key={device.DeviceId}>
+            <Table.Tr key={device.Path}>
               <Table.Td>
                 {device.DeviceName}
-                <div className={s.finePrint}>{device.DeviceId}</div>
+                <div className={s.finePrint}>
+                  {device.Path.slice(device.Path.indexOf(device.DeviceId))}
+                </div>
               </Table.Td>
 
               <Table.Td>

@@ -201,8 +201,8 @@ def get_system_info():
             with OpenKeyEx(
                 HKEY_LOCAL_MACHINE, partial_device_path, 0, KEY_READ | KEY_WOW64_64KEY
             ) as partial_device_key:
-                if QueryInfoKey(partial_device_key)[0] > 0:
-                    second_device_id = EnumKey(partial_device_key, 0)
+                for instance_index in range(QueryInfoKey(partial_device_key)[0]):
+                    second_device_id = EnumKey(partial_device_key, instance_index)
                     device_path = f"{partial_device_path}\\{second_device_id}"
                     instance_id = f"PCI\\{partial_device_id}\\{second_device_id}"
 
