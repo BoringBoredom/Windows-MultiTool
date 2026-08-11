@@ -25,7 +25,7 @@ def get_scheduling_info():
         try:
             with OpenKeyEx(
                 HKEY_LOCAL_MACHINE,
-                KERNEL_PATH + r"KGroups\00",
+                KERNEL_PATH + r"\KGroups\00",
                 0,
                 KEY_READ | KEY_WOW64_64KEY,
             ) as kgroup_key:
