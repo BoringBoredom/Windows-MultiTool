@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Checkout repository
@@ -33,7 +33,15 @@ jobs:
 
       - name: Install dependencies
         shell: cmd
-        run: npm run init
+        env:
+          TEMP: ${{ github.workspace }}\.build-temp
+          TMP: ${{ github.workspace }}\.build-temp
+        run: |
+          if not exist "%TEMP%" mkdir "%TEMP%"
+          echo TEMP=%TEMP%
+          echo TMP=%TMP%
+          echo USERPROFILE=%USERPROFILE%
+          npm run init
 
       - name: Build
         shell: cmd
