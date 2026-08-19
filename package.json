@@ -1,7 +1,7 @@
 {
   "name": "windows-multitool",
   "private": true,
-  "version": "0.4.8",
+  "version": "0.4.9",
   "type": "module",
   "repo": "BoringBoredom/Windows-MultiTool",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "init": "npm ci && uv sync",
+    "init": "npm ci && set \"PYINSTALLER_COMPILE_BOOTLOADER=1\" && uv sync --reinstall-package pyinstaller --no-binary-package pyinstaller --no-cache -v",
     "clean": "(if exist dist rmdir /S /Q dist) && (if exist build rmdir /S /Q build) && (if exist gui rmdir /S /Q gui) && (if exist \"WindowsMultiTool.spec\" del /q \"WindowsMultiTool.spec\")",
     "pyinstaller": "uv run pyinstaller main.pyw --name \"WindowsMultiTool\" --add-data=\"gui:gui\" --onefile --noconsole --icon=\"assets\\icon.ico\" --uac-admin --clean --noupx",
     "build-binary": "npm run clean && npm run build && npm run pyinstaller"
