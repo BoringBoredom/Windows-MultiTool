@@ -167,4 +167,4 @@ if __name__ == "__main__":
     )
     window.events.shown += on_shown
 
-    start(ssl=True, debug=isDevEnv)
+    start(debug=isDevEnv)

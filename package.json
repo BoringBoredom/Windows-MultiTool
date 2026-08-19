@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "init": "npm ci && uv sync",
     "clean": "(if exist dist rmdir /S /Q dist) && (if exist build rmdir /S /Q build) && (if exist gui rmdir /S /Q gui) && (if exist \"WindowsMultiTool.spec\" del /q \"WindowsMultiTool.spec\")",
-    "pyinstaller": "uv run pyinstaller main.pyw --name \"WindowsMultiTool\" --add-data=\"gui:gui\" --onefile --noconsole --icon=\"assets\\icon.ico\" --uac-admin",
+    "pyinstaller": "uv run pyinstaller main.pyw --name \"WindowsMultiTool\" --add-data=\"gui:gui\" --onefile --noconsole --icon=\"assets\\icon.ico\" --uac-admin --clean --noupx",
     "build-binary": "npm run clean && npm run build && npm run pyinstaller"
   },
   "dependencies": {
