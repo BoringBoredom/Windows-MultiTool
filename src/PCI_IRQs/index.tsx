@@ -58,7 +58,7 @@ function getExportData(systemInfo: SystemInfo, isReg: boolean) {
       `set "MSI_PATH=${MSI_PATH}"\n\n`;
 
     for (const device of systemInfo.devices) {
-      content += `set "BASE=${device.Path}"\n\n`;
+      content += `set "BASE=HKLM\\${device.Path}"\n\n`;
 
       const baseAddAffinity = `reg add "%BASE%%AFFINITY_PATH%"`;
       const baseDeleteAffinity = `reg delete "%BASE%%AFFINITY_PATH%"`;
