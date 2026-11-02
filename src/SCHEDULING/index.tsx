@@ -30,7 +30,7 @@ function getExportData(schedulingInfo: SchedulingInfo, isReg: boolean) {
     if (ReservedCpuSets !== null) {
       content += `reg add "HKEY_LOCAL_MACHINE\\${KERNEL_PATH}" /v ReservedCpuSets /t REG_BINARY /d ${formatBitMask(
         ReservedCpuSets,
-        false
+        false,
       )} /f\n`;
     } else {
       content += `reg delete "HKEY_LOCAL_MACHINE\\${KERNEL_PATH}" /v ReservedCpuSets /f\n`;
@@ -39,7 +39,7 @@ function getExportData(schedulingInfo: SchedulingInfo, isReg: boolean) {
     if (SmallProcessorMask !== null) {
       content += `reg add "HKEY_LOCAL_MACHINE\\${KERNEL_PATH}\\KGroups\\00" /v SmallProcessorMask /t REG_BINARY /d ${formatBitMask(
         SmallProcessorMask,
-        false
+        false,
       )} /f\n`;
     } else {
       content += `reg delete "HKEY_LOCAL_MACHINE\\${KERNEL_PATH}\\KGroups\\00" /v SmallProcessorMask /f\n`;
@@ -82,10 +82,13 @@ export default function SCHEDULING() {
             <Menu.Item
               onClick={() => {
                 window.pywebview.api
-                  .saveFile(
-                    "scheduling.reg",
-                    ["Registry File (*.reg)"],
-                    getExportData(schedulingInfo, true)
+                  .getSchedulingInfo()
+                  .then((data) =>
+                    window.pywebview.api.saveFile(
+                      "scheduling.reg",
+                      ["Registry File (*.reg)"],
+                      getExportData(data, true),
+                    ),
                   )
                   .catch((error: unknown) => {
                     alert(error instanceof Error ? error.toString() : error);
@@ -98,10 +101,13 @@ export default function SCHEDULING() {
             <Menu.Item
               onClick={() => {
                 window.pywebview.api
-                  .saveFile(
-                    "scheduling.bat",
-                    ["Batch File (*.bat)"],
-                    getExportData(schedulingInfo, false)
+                  .getSchedulingInfo()
+                  .then((data) =>
+                    window.pywebview.api.saveFile(
+                      "scheduling.bat",
+                      ["Batch File (*.bat)"],
+                      getExportData(data, false),
+                    ),
                   )
                   .catch((error: unknown) => {
                     alert(error instanceof Error ? error.toString() : error);

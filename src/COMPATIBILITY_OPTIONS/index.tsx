@@ -25,7 +25,7 @@ export type CompatibilityOptions = [
     | "VISTASP2"
     | "WIN7RTM"
     | "WIN8RTM"
-  )
+  ),
 ];
 
 export interface CompatibilityOptionsData {
@@ -41,7 +41,7 @@ export const COMPAT_PATH =
 function processHive(
   hive: HiveData,
   hiveKey: "HKEY_LOCAL_MACHINE" | "HKEY_CURRENT_USER",
-  isReg: boolean
+  isReg: boolean,
 ) {
   if (hive.size === 0) {
     return "";
@@ -109,21 +109,25 @@ export default function COMPATIBILITY_OPTIONS() {
             <Menu.Label>EXPORT</Menu.Label>
             <Menu.Item
               onClick={() => {
-                const { HKLM, HKCU } = compatibilityOptionsData;
+                window.pywebview.api
+                  .getCompatibilityOptions()
+                  .then((data) => {
+                    const HKLM = new Map(Object.entries(data.HKLM)) as HiveData;
+                    const HKCU = new Map(Object.entries(data.HKCU)) as HiveData;
 
-                if (HKLM.size !== 0 || HKCU.size !== 0) {
-                  window.pywebview.api
-                    .saveFile(
-                      "compatibility_settings.reg",
-                      ["Registry File (*.reg)"],
-                      "Windows Registry Editor Version 5.00\n\n" +
-                        processHive(HKLM, "HKEY_LOCAL_MACHINE", true) +
-                        processHive(HKCU, "HKEY_CURRENT_USER", true)
-                    )
-                    .catch((error: unknown) => {
-                      alert(error instanceof Error ? error.toString() : error);
-                    });
-                }
+                    if (HKLM.size !== 0 || HKCU.size !== 0) {
+                      return window.pywebview.api.saveFile(
+                        "compatibility_settings.reg",
+                        ["Registry File (*.reg)"],
+                        "Windows Registry Editor Version 5.00\n\n" +
+                          processHive(HKLM, "HKEY_LOCAL_MACHINE", true) +
+                          processHive(HKCU, "HKEY_CURRENT_USER", true),
+                      );
+                    }
+                  })
+                  .catch((error: unknown) => {
+                    alert(error instanceof Error ? error.toString() : error);
+                  });
               }}
             >
               .reg
@@ -131,22 +135,26 @@ export default function COMPATIBILITY_OPTIONS() {
 
             <Menu.Item
               onClick={() => {
-                const { HKLM, HKCU } = compatibilityOptionsData;
+                window.pywebview.api
+                  .getCompatibilityOptions()
+                  .then((data) => {
+                    const HKLM = new Map(Object.entries(data.HKLM)) as HiveData;
+                    const HKCU = new Map(Object.entries(data.HKCU)) as HiveData;
 
-                if (HKLM.size !== 0 || HKCU.size !== 0) {
-                  window.pywebview.api
-                    .saveFile(
-                      "compatibility_settings.bat",
-                      ["Batch File (*.bat)"],
-                      "setlocal\n\n" +
-                        processHive(HKLM, "HKEY_LOCAL_MACHINE", false) +
-                        processHive(HKCU, "HKEY_CURRENT_USER", false) +
-                        "endlocal"
-                    )
-                    .catch((error: unknown) => {
-                      alert(error instanceof Error ? error.toString() : error);
-                    });
-                }
+                    if (HKLM.size !== 0 || HKCU.size !== 0) {
+                      return window.pywebview.api.saveFile(
+                        "compatibility_settings.bat",
+                        ["Batch File (*.bat)"],
+                        "setlocal\n\n" +
+                          processHive(HKLM, "HKEY_LOCAL_MACHINE", false) +
+                          processHive(HKCU, "HKEY_CURRENT_USER", false) +
+                          "endlocal",
+                      );
+                    }
+                  })
+                  .catch((error: unknown) => {
+                    alert(error instanceof Error ? error.toString() : error);
+                  });
               }}
             >
               .bat

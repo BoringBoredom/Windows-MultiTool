@@ -103,17 +103,22 @@ export default function IFEO() {
             <Menu.Label>EXPORT</Menu.Label>
             <Menu.Item
               onClick={() => {
-                if (ifeoData.size !== 0) {
-                  window.pywebview.api
-                    .saveFile(
-                      "ifeo.reg",
-                      ["Registry File (*.reg)"],
-                      getExportData(ifeoData, true)
-                    )
-                    .catch((error: unknown) => {
-                      alert(error instanceof Error ? error.toString() : error);
-                    });
-                }
+                window.pywebview.api
+                  .getIfeoData()
+                  .then((data) => {
+                    const ifeoData = new Map(Object.entries(data)) as IfeoData;
+
+                    if (ifeoData.size !== 0) {
+                      return window.pywebview.api.saveFile(
+                        "ifeo.reg",
+                        ["Registry File (*.reg)"],
+                        getExportData(ifeoData, true),
+                      );
+                    }
+                  })
+                  .catch((error: unknown) => {
+                    alert(error instanceof Error ? error.toString() : error);
+                  });
               }}
             >
               .reg
@@ -121,17 +126,22 @@ export default function IFEO() {
 
             <Menu.Item
               onClick={() => {
-                if (ifeoData.size !== 0) {
-                  window.pywebview.api
-                    .saveFile(
-                      "ifeo.bat",
-                      ["Batch File (*.bat)"],
-                      getExportData(ifeoData, false)
-                    )
-                    .catch((error: unknown) => {
-                      alert(error instanceof Error ? error.toString() : error);
-                    });
-                }
+                window.pywebview.api
+                  .getIfeoData()
+                  .then((data) => {
+                    const ifeoData = new Map(Object.entries(data)) as IfeoData;
+
+                    if (ifeoData.size !== 0) {
+                      return window.pywebview.api.saveFile(
+                        "ifeo.bat",
+                        ["Batch File (*.bat)"],
+                        getExportData(ifeoData, false),
+                      );
+                    }
+                  })
+                  .catch((error: unknown) => {
+                    alert(error instanceof Error ? error.toString() : error);
+                  });
               }}
             >
               .bat
@@ -178,7 +188,7 @@ export default function IFEO() {
                           })
                           .catch((error: unknown) => {
                             alert(
-                              error instanceof Error ? error.toString() : error
+                              error instanceof Error ? error.toString() : error,
                             );
                           });
                       }}

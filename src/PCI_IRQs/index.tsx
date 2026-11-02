@@ -44,7 +44,7 @@ function getExportData(systemInfo: SystemInfo, isReg: boolean) {
         formatRegValue("DevicePolicy", device.DevicePolicy) +
         `"AssignmentSetOverride"=${formatBitMask(
           device.AssignmentSetOverride,
-          true
+          true,
         )}\n\n` +
         `[HKEY_LOCAL_MACHINE\\${device.Path}${MSI_PATH}]\n` +
         formatRegValue("MSISupported", device.MSISupported) +
@@ -80,7 +80,7 @@ function getExportData(systemInfo: SystemInfo, isReg: boolean) {
       if (device.AssignmentSetOverride !== null) {
         content += `${baseAddAffinity} /v AssignmentSetOverride /t REG_BINARY /d ${formatBitMask(
           device.AssignmentSetOverride,
-          false
+          false,
         )} /f \n`;
       } else {
         content += `${baseDeleteAffinity} /v AssignmentSetOverride /f \n`;
@@ -159,10 +159,13 @@ export default function PCI_IRQs() {
             <Menu.Item
               onClick={() => {
                 window.pywebview.api
-                  .saveFile(
-                    "pci_irqs.reg",
-                    ["Registry File (*.reg)"],
-                    getExportData(systemInfo, true)
+                  .getSystemInfo()
+                  .then((data) =>
+                    window.pywebview.api.saveFile(
+                      "pci_irqs.reg",
+                      ["Registry File (*.reg)"],
+                      getExportData(data, true),
+                    ),
                   )
                   .catch((error: unknown) => {
                     alert(error instanceof Error ? error.toString() : error);
@@ -175,10 +178,13 @@ export default function PCI_IRQs() {
             <Menu.Item
               onClick={() => {
                 window.pywebview.api
-                  .saveFile(
-                    "pci_irqs.bat",
-                    ["Batch File (*.bat)"],
-                    getExportData(systemInfo, false)
+                  .getSystemInfo()
+                  .then((data) =>
+                    window.pywebview.api.saveFile(
+                      "pci_irqs.bat",
+                      ["Batch File (*.bat)"],
+                      getExportData(data, false),
+                    ),
                   )
                   .catch((error: unknown) => {
                     alert(error instanceof Error ? error.toString() : error);
